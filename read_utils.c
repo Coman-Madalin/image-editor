@@ -79,14 +79,17 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 
 			case 3:
 				(*data)->image->grayscale = calloc((*data)->height,
-														 sizeof(int *));
+												   sizeof(int *));
 				(*data)->image->grayscale[0] = calloc((*data)->width,
-															sizeof(int));
+													  sizeof(int));
 				j = 0;
-				while (token != NULL) {
-					(*data)->image->grayscale[0][j] = strtol(token,
-																   NULL, 10);
-					token = strtok(NULL, " ");
+				char *token2 = strtok(token, " \t");
+				while (token2 != NULL) {
+					printf("TOKEN: %s\n", token2);
+					(*data)->image->grayscale[0][j] = strtol(token2,
+															 NULL, 10);
+					j++;
+					token2 = strtok(NULL, " \t");
 				}
 				done = 1;
 				break;
@@ -105,7 +108,7 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 
 	for (i = 1; i < (*data)->height; i++) {
 		(*data)->image->grayscale[i] = calloc((*data)->width,
-													sizeof(int));
+											  sizeof(int));
 		for (j = 0; j < (*data)->width; j++)
 			fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
 	}
@@ -147,22 +150,23 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 				k = 0;
 
 				(*data)->image->color = calloc((*data)->height,
-													 sizeof(int **));
+											   sizeof(int **));
 				(*data)->image->color[0] = calloc((*data)->width,
-														sizeof(int *));
+												  sizeof(int *));
 				(*data)->image->color[0][0] = calloc(3, sizeof(int));
-				while (token != NULL) {
-					(*data)->image->color[0][j][k] = strtol(token, NULL,
-																  10);
+				char *token2 = strtok(token, " \t");
+				while (token2 != NULL) {
+					(*data)->image->color[0][j][k] = strtol(token2, NULL,
+															10);
 					k++;
 					if (k == 3) {
 						k = 0;
 						j++;
 						(*data)->image->color[0][j] = calloc(3,
-																   sizeof(int));
+															 sizeof(int));
 					}
 
-					token = strtok(NULL, " ");
+					token2 = strtok(NULL, " ");
 				}
 				done = 1;
 				break;
@@ -181,7 +185,7 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 
 	for (i = 1; i < (*data)->height; i++) {
 		(*data)->image->color[i] = calloc((*data)->width,
-												sizeof(int *));
+										  sizeof(int *));
 		for (j = 0; j < (*data)->width; j++) {
 			(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
