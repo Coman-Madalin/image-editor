@@ -5,24 +5,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct {
-	int scale;
-	int **array;
-} IMAGE_GRAYSCALE;
-
-typedef struct {
-	int scale;
-	int ***array;
-} IMAGE_COLOR;
-
 typedef union {
-	IMAGE_GRAYSCALE grayscale;
-	IMAGE_COLOR color;
+	int **grayscale;
+	int ***color;
 } ACTUAL_IMAGE;
 
 typedef struct {
 	ACTUAL_IMAGE *image;
 	int magic_word;
+	int scale;
 	int width;
 	int height;
 	int x1, x2, y1, y2;

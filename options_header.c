@@ -80,3 +80,58 @@ void SELECT(PLACEHOLDER **data)
 
 	printf("Selected %d %d %d %d\n", x1, y1, x2, y2);
 }
+
+void HISTOGRAM(PLACEHOLDER *data)
+{
+	int bins, max_stars, nr_values = 0;
+	scanf("%d %d", &max_stars, &bins);
+	if (data->magic_word == -1) {
+		printf("No data loaded\n");
+		return;
+	}
+
+	if (data->magic_word == 3) {
+		printf("Black and white image needed\n");
+		return;
+	}
+
+
+	int *vf = calloc(data->scale, sizeof(int));
+
+	int i, j;
+
+	for (i = data->y1; i < data->y2; i++)
+		for (j = data->x1; j < data->x2; j++) {
+			int value = data->image->grayscale[i][j];
+			vf[value]++;
+			if (vf[value] == 1)
+				nr_values++;
+		}
+
+	int *bin = calloc(bins, sizeof(int));
+	int values_per_bin = nr_values / bins;
+
+	int count = 0;
+	for (i = 0; i <= data->scale; i++) {
+		if (vf[i] == 0)
+			continue;
+		int index = count / values_per_bin;
+		bin[index] += vf[i];
+		count++;
+	}
+
+	int max_freq = 0;
+	for (i = 0; i < bins; i++) {
+		if (bin[i] > max_freq)
+			max_freq = bin[i];
+	}
+
+	for (i = 0; i < bins; i++) {
+		int nr_stars = (int) ((double) bin[i] / max_freq * max_stars);
+		printf("%d\t|\t", nr_stars);
+		for (j = 0; j < nr_stars; j++)
+			printf("*");
+		printf("\n");
+
+	}
+}

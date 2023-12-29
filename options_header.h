@@ -5,4 +5,6 @@
 
 void SELECT(PLACEHOLDER **data);
 
+void HISTOGRAM(PLACEHOLDER *data);
+
 #endif

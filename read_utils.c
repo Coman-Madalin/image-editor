@@ -1,5 +1,7 @@
 #include "read_utils.h"
 
+// TODO: Free correctly the memory allocated for the previous image
+
 void LOAD(PLACEHOLDER **data)
 {
 	free(*data);
@@ -12,7 +14,7 @@ void LOAD(PLACEHOLDER **data)
 	scanf("%s", file_name);
 	FILE *fptr = fopen(file_name, "r");
 	if (fptr == NULL) {
-		printf("Failed to load %s/n", file_name);
+		printf("Failed to load %s\n", file_name);
 		return;
 	}
 
@@ -38,7 +40,7 @@ void LOAD(PLACEHOLDER **data)
 		free(*data);
 		(*data) = calloc(1, sizeof(PLACEHOLDER));
 		(*data)->magic_word = -1;
-		printf("Failed to load %s/n", file_name);
+		printf("Failed to load %s\n", file_name);
 		return;
 	}
 }
@@ -72,17 +74,17 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 				break;
 
 			case 2:
-				(*data)->image->grayscale.scale = strtol(token, NULL, 10);
+				(*data)->scale = strtol(token, NULL, 10);
 				break;
 
 			case 3:
-				(*data)->image->grayscale.array = calloc((*data)->height,
+				(*data)->image->grayscale = calloc((*data)->height,
 														 sizeof(int *));
-				(*data)->image->grayscale.array[0] = calloc((*data)->width,
+				(*data)->image->grayscale[0] = calloc((*data)->width,
 															sizeof(int));
 				j = 0;
 				while (token != NULL) {
-					(*data)->image->grayscale.array[0][j] = strtol(token,
+					(*data)->image->grayscale[0][j] = strtol(token,
 																   NULL, 10);
 					token = strtok(NULL, " ");
 				}
@@ -102,10 +104,10 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 	}
 
 	for (i = 1; i < (*data)->height; i++) {
-		(*data)->image->grayscale.array[i] = calloc((*data)->width,
+		(*data)->image->grayscale[i] = calloc((*data)->width,
 													sizeof(int));
 		for (j = 0; j < (*data)->width; j++)
-			fscanf(fptr, "%d", &((*data)->image->grayscale.array[i][j]));
+			fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
 	}
 }
 
@@ -137,26 +139,26 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 				break;
 
 			case 2:
-				(*data)->image->color.scale = strtol(token, NULL, 10);
+				(*data)->scale = strtol(token, NULL, 10);
 				break;
 
 			case 3:
 				j = 0;
 				k = 0;
 
-				(*data)->image->color.array = calloc((*data)->height,
+				(*data)->image->color = calloc((*data)->height,
 													 sizeof(int **));
-				(*data)->image->color.array[0] = calloc((*data)->width,
+				(*data)->image->color[0] = calloc((*data)->width,
 														sizeof(int *));
-				(*data)->image->color.array[0][0] = calloc(3, sizeof(int));
+				(*data)->image->color[0][0] = calloc(3, sizeof(int));
 				while (token != NULL) {
-					(*data)->image->color.array[0][j][k] = strtol(token, NULL,
+					(*data)->image->color[0][j][k] = strtol(token, NULL,
 																  10);
 					k++;
 					if (k == 3) {
 						k = 0;
 						j++;
-						(*data)->image->color.array[0][j] = calloc(3,
+						(*data)->image->color[0][j] = calloc(3,
 																   sizeof(int));
 					}
 
@@ -178,12 +180,12 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 	}
 
 	for (i = 1; i < (*data)->height; i++) {
-		(*data)->image->color.array[i] = calloc((*data)->width,
+		(*data)->image->color[i] = calloc((*data)->width,
 												sizeof(int *));
 		for (j = 0; j < (*data)->width; j++) {
-			(*data)->image->color.array[i][j] = calloc(3, sizeof(int));
+			(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
-				fscanf(fptr, "%d", &((*data)->image->color.array[i][j][k]));
+				fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
 		}
 	}
 }
