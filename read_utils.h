@@ -5,13 +5,13 @@
 
 
 
-void LOAD(PLACEHOLDER **image);
+void LOAD(PLACEHOLDER **data);
 
-void read_p1(IMAGE_BLACK_WHITE **image, FILE *fptr);
+void read_p1(PLACEHOLDER **data, FILE *fptr);
 
-void read_p2(IMAGE_GRAYSCALE **image, FILE *fptr);
+void read_p2(PLACEHOLDER **data, FILE *fptr);
 
-void read_p3(IMAGE_COLOR **image, FILE *fptr);
+void read_p3(PLACEHOLDER **data, FILE *fptr);
 
 //void read_p4(void **image, FILE *fptr);
 

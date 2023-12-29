@@ -3,6 +3,6 @@
 
 #include "structure_header.h"
 
-void SELECT(PLACEHOLDER **image);
+void SELECT(PLACEHOLDER **data);
 
 #endif
