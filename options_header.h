@@ -1,0 +1,8 @@
+#ifndef OPTIONS_HEADER_H
+#define OPTIONS_HEADER_H
+
+#include "structure_header.h"
+
+void SELECT(PLACEHOLDER **image);
+
+#endif
