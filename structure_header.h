@@ -11,16 +11,11 @@ typedef struct {
 } IMAGE_GRAYSCALE;
 
 typedef struct {
-	int **array;
-} IMAGE_BLACK_WHITE;
-
-typedef struct {
 	int scale;
 	int ***array;
 } IMAGE_COLOR;
 
 typedef union {
-	IMAGE_BLACK_WHITE black_white;
 	IMAGE_GRAYSCALE grayscale;
 	IMAGE_COLOR color;
 } ACTUAL_IMAGE;

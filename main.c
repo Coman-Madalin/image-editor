@@ -12,17 +12,6 @@ void print_image(PLACEHOLDER *data)
 		printf("No data loaded\n");
 		return;
 	}
-	if (data->magic_word == 1) {
-		printf("%d\n", data->magic_word);
-		printf("%d %d\n", data->width, data->height);
-
-		for (i = 0; i < data->height; i++) {
-			for (j = 0; j < data->width; j++)
-				printf("%d ", data->image->black_white.array[i][j]);
-			printf("\n");
-		}
-		return;
-	}
 
 	if (data->magic_word == 2) {
 		printf("%d\n", data->magic_word);

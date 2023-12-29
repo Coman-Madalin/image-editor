@@ -21,11 +21,7 @@ void LOAD(PLACEHOLDER **data)
 		fscanf(fptr, "%s", magic_word);
 	}
 
-	if (strcmp(magic_word, "P1") == 0) {
-		read_p1(data, fptr);
-		(*data)->magic_word = 1;
-		printf("Loaded %s\n", file_name);
-	} else if (strcmp(magic_word, "P2") == 0) {
+	if (strcmp(magic_word, "P2") == 0) {
 		read_p2(data, fptr);
 		(*data)->magic_word = 2;
 		printf("Loaded %s\n", file_name);
@@ -34,8 +30,6 @@ void LOAD(PLACEHOLDER **data)
 		(*data)->magic_word = 3;
 		printf("Loaded %s\n", file_name);
 	}
-//	else if (strcmp(magic_word, "P4") == 0)
-//		read_p4(data, fptr);
 //	else if (strcmp(magic_word, "P5") == 0)
 //		read_p5(data, fptr);
 //	else if (strcmp(magic_word, "P6") == 0)
@@ -46,70 +40,6 @@ void LOAD(PLACEHOLDER **data)
 		(*data)->magic_word = -1;
 		printf("Failed to load %s/n", file_name);
 		return;
-	}
-}
-
-void read_p1(PLACEHOLDER **data, FILE *fptr)
-{
-	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
-	int i, j;
-	int count = 0, done = 0;
-	char line[1000];
-
-	fgets(line, 1000, fptr);
-	while (fgets(line, 1000, fptr) != NULL) {
-		if (line[0] == '#')
-			continue;
-
-		char *token = strtok(line, " ");
-
-		while (token != NULL) {
-
-			switch (count) {
-			case 0:
-				(*data)->width = strtol(token, NULL, 10);
-				(*data)->x2 = (*data)->width;
-				break;
-
-			case 1:
-				(*data)->height = strtol(token, NULL, 10);
-				(*data)->y2 = (*data)->height;
-				break;
-
-			case 2:
-				(*data)->image->black_white.array = calloc((*data)->height,
-														   sizeof(int
-															 *));
-				(*data)->image->black_white.array[0] = calloc((*data)->width,
-															  sizeof(int));
-				j = 0;
-
-				while (token != NULL) {
-					(*data)->image->black_white.array[0][j] = strtol(token,
-																	 NULL,
-																	 10);
-					token = strtok(NULL, " ");
-				}
-				done = 1;
-				break;
-			}
-
-			if (done == 1)
-				break;
-
-			count++;
-			token = strtok(NULL, " ");
-		}
-
-		if (done == 1)
-			break;
-	}
-
-	for (i = 1; i < (*data)->height; i++) {
-		(*data)->image->black_white.array[i] = calloc((*data)->width,
-													  sizeof(int));
-		for (j = 0; j < (*data)->width; j++)
-			fscanf(fptr, "%d", &((*data)->image->black_white.array[i][j]));
 	}
 }
 
@@ -257,10 +187,6 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 		}
 	}
 }
-
-//void read_p4(IMAGE **image, FILE *fptr)
-//{
-//}
 
 //void read_p5(PLACEHOLDER **image, FILE *fptr)
 //{
