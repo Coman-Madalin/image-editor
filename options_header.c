@@ -132,6 +132,55 @@ void HISTOGRAM(PLACEHOLDER *data)
 		for (j = 0; j < nr_stars; j++)
 			printf("*");
 		printf("\n");
-
 	}
+}
+
+void EQUALIZE(PLACEHOLDER *data)
+{
+	if (data->magic_word == -1) {
+		printf("No data loaded\n");
+		return;
+	}
+
+	if (data->magic_word == 3) {
+		printf("Black and white image needed\n");
+		return;
+	}
+
+	int **vf = calloc((data->scale + 1), sizeof(int *));
+	int i, j;
+
+	for (i = 0; i < data->height; i++)
+		for (j = 0; j < data->width; j++) {
+			int value = data->image->grayscale[i][j];
+			if (vf[value] == NULL)
+				vf[value] = calloc(3, sizeof(int));
+			vf[value][0]++;
+		}
+
+	int current_sum = 0;
+	int first_value;
+	for (i = 0; i <= data->scale; i++)
+		if (vf[i] != NULL) {
+			if (current_sum == 0)
+				first_value = vf[i][0];
+			current_sum += vf[i][0];
+			vf[i][1] = current_sum;
+		}
+
+	for (i = 0; i <= data->scale; i++)
+		if (vf[i] != NULL)
+			vf[i][2] = round((double) (vf[i][1] - first_value) /
+							 ((data->width * data->height) - first_value) *
+							 data->scale);
+
+
+	for (i = 0; i < data->height; i++)
+		for (j = 0; j < data->width; j++) {
+			int value = data->image->grayscale[i][j];
+			data->image->grayscale[i][j] = vf[value][2];
+		}
+
+	printf("Equalize done\n");
+
 }

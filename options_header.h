@@ -7,4 +7,6 @@ void SELECT(PLACEHOLDER **data);
 
 void HISTOGRAM(PLACEHOLDER *data);
 
+void EQUALIZE(PLACEHOLDER *data);
+
 #endif
