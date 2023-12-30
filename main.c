@@ -8,10 +8,8 @@
 void print_image(PLACEHOLDER *data)
 {
 	int i, j;
-	if (data->magic_word == -1) {
-		printf("No data loaded\n");
+	if (is_loaded(data) == 0)
 		return;
-	}
 
 	if (data->magic_word == 2) {
 		printf("%d\n", data->magic_word);
@@ -59,6 +57,8 @@ int main()
 			EQUALIZE(data);
 		else if (strcmp(command, "CROP") == 0)
 			CROP(&data);
+		else if (strcmp(command, "APPLY") == 0)
+			APPLY(&data);
 		else if (strcmp(command, "PRINT") == 0)
 			print_image(data);
 		else if (strcmp(command, "EXIT") == 0)

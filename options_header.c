@@ -2,10 +2,8 @@
 
 void SELECT(PLACEHOLDER **data)
 {
-	if ((*data)->magic_word == -1) {
-		printf("No data loaded\n");
+	if (is_loaded(*data) == 0)
 		return;
-	}
 
 	char all[100];
 	gets(all);
@@ -85,16 +83,12 @@ void HISTOGRAM(PLACEHOLDER *data)
 {
 	int bins, max_stars, nr_values = 0;
 	scanf("%d %d", &max_stars, &bins);
-	if (data->magic_word == -1) {
-		printf("No data loaded\n");
+	if (is_loaded(data) == 0)
 		return;
-	}
-
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
 		return;
 	}
-
 
 	int *vf = calloc(data->scale, sizeof(int));
 
@@ -137,10 +131,8 @@ void HISTOGRAM(PLACEHOLDER *data)
 
 void EQUALIZE(PLACEHOLDER *data)
 {
-	if (data->magic_word == -1) {
-		printf("No data loaded\n");
+	if (is_loaded(data) == 0)
 		return;
-	}
 
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
@@ -187,10 +179,8 @@ void EQUALIZE(PLACEHOLDER *data)
 
 void CROP(PLACEHOLDER **data)
 {
-	if ((*data)->magic_word == -1) {
-		printf("No image loaded\n");
+	if (is_loaded(*data) == 0)
 		return;
-	}
 	int i, j;
 
 	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
@@ -238,4 +228,48 @@ void CROP(PLACEHOLDER **data)
 	(*data)->y2 = (*data)->height;
 
 	printf("Image cropped.\n");
+}
+
+void APPLY(PLACEHOLDER **data)
+{
+	char parameter[13];
+	scanf("%s", parameter);
+	if (is_loaded(*data) == 0)
+		return;
+
+	int kernel[3][3];
+	if (strcmp(parameter, "EDGE") == 0) {
+		if (is_Chaplin(*data) == 1)
+			return;
+		EDGE(kernel);
+		APPLY_UTIL(1, kernel, data);
+		printf("APPLY EDGE done\n");
+
+	} else if (strcmp(parameter, "SHARPEN") == 0) {
+		if (is_Chaplin(*data) == 1)
+			return;
+		SHARPEN(kernel);
+		APPLY_UTIL(1, kernel, data);
+		printf("APPLY SHARPEN done\n");
+
+	} else if (strcmp(parameter, "BLUR") == 0) {
+		if (is_Chaplin(*data) == 1)
+			return;
+		int coef = 9;
+		BLUR(kernel);
+		APPLY_UTIL(coef, kernel, data);
+		printf("APPLY BLUR done\n");
+
+	} else if (strcmp(parameter, "GAUSSIAN_BLUR") == 0) {
+		if (is_Chaplin(*data) == 1)
+			return;
+		int coef = 16;
+		GAUSSIAN_BLUR(kernel);
+		APPLY_UTIL(coef, kernel, data);
+		printf("APPLY GAUSSIAN_BLUR done\n");
+
+	} else {
+		printf("APPLY parameter invalid\n");
+		return;
+	}
 }
