@@ -6,7 +6,7 @@ void SELECT(PLACEHOLDER **data)
 		return;
 
 	char all[100];
-	gets(all);
+	fgets(all, 100, stdin);
 	if (strncmp(all, " ALL", 4) == 0) {
 		(*data)->x1 = 0;
 		(*data)->y1 = 0;
@@ -272,4 +272,43 @@ void APPLY(PLACEHOLDER **data)
 		printf("APPLY parameter invalid\n");
 		return;
 	}
+}
+
+void SAVE(PLACEHOLDER *data)
+{
+	if (is_loaded(data) == 0)
+		return;
+
+	char *filename = calloc(100, sizeof(char));
+	scanf("%s", filename);
+
+	FILE *f = fopen(filename, "w");
+	if (f == NULL) {
+		printf("Error opening file\n");
+		return;
+	}
+
+	fprintf(f, "P%d\n", data->magic_word);
+	fprintf(f, "%d %d\n", data->width, data->height);
+	fprintf(f, "%d\n", data->scale);
+
+	int i, j;
+	if (data->magic_word == 2) {
+		for (i = 0; i < data->height; i++) {
+			for (j = 0; j < data->width; j++)
+				fprintf(f, "%d ", data->image->grayscale[i][j]);
+			fprintf(f, "\n");
+		}
+	} else {
+		for (i = 0; i < data->height; i++) {
+			for (j = 0; j < data->width; j++)
+				fprintf(f, "%d %d %d ", data->image->color[i][j][0],
+						data->image->color[i][j][1],
+						data->image->color[i][j][2]);
+			fprintf(f, "\n");
+		}
+	}
+
+	fclose(f);
+	printf("Image saved\n");
 }

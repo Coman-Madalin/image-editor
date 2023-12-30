@@ -14,4 +14,6 @@ void CROP(PLACEHOLDER **data);
 
 void APPLY(PLACEHOLDER **data);
 
+void SAVE(PLACEHOLDER *data);
+
 #endif

@@ -98,18 +98,12 @@ void calculate_sum(double *sum, int which, int i, int j, int coef,
 	*sum += (double) (color[i + 1][j - 1][which] * kernel[2][0]) / coef;
 	*sum += (double) (color[i + 1][j][which] * kernel[2][1]) / coef;
 	*sum += (double) (color[i + 1][j + 1][which] * kernel[2][2]) / coef;
-	printf("SUMa%d: %d\n", which, (int) *sum);
 	clamp_double(sum, 0, 255);
-	printf("SUM%d: %d\n", which, (int) *sum);
 }
 
 void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
 {
 	int i, j;
-	printf("(*data)->x1: %d\n", (*data)->x1);
-	printf("(*data)->x2: %d\n", (*data)->x2);
-	printf("(*data)->y1: %d\n", (*data)->y1);
-	printf("(*data)->y2: %d\n", (*data)->y2);
 
 	for (i = (*data)->y1 + 1; i < (*data)->y2 - 1; i++) {
 		for (j = (*data)->x1 + 1; j < (*data)->x2 - 1; j++) {
@@ -117,8 +111,6 @@ void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
 			calculate_sum(&sum0, 0, i, j, coef, kernel, (*data)->image->color);
 			calculate_sum(&sum1, 1, i, j, coef, kernel, (*data)->image->color);
 			calculate_sum(&sum2, 2, i, j, coef, kernel, (*data)->image->color);
-
-			printf("FINAL; %d %d %d\n", (int) sum0, (int) sum1, (int) sum2);
 
 			(*data)->image->color[i][j][0] = (int) sum0;
 			(*data)->image->color[i][j][1] = (int) sum1;

@@ -4,7 +4,6 @@
 #include "options_header.h"
 #include "read_utils.h"
 
-
 void print_image(PLACEHOLDER *data)
 {
 	int i, j;
@@ -40,7 +39,7 @@ void print_image(PLACEHOLDER *data)
 	}
 }
 
-int main()
+int main(void)
 {
 	char *command = calloc(5, sizeof(char));
 	PLACEHOLDER *data = calloc(1, sizeof(PLACEHOLDER));
@@ -59,10 +58,14 @@ int main()
 			CROP(&data);
 		else if (strcmp(command, "APPLY") == 0)
 			APPLY(&data);
+		else if (strcmp(command, "SAVE") == 0)
+			SAVE(data);
 		else if (strcmp(command, "PRINT") == 0)
 			print_image(data);
 		else if (strcmp(command, "EXIT") == 0)
 			break;
+		else if (strcmp(command, "ascii") == 0)
+			continue;
 		else
 			printf("Invalid command\n");
 	}

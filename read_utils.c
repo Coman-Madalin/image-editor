@@ -41,8 +41,8 @@ void LOAD(PLACEHOLDER **data)
 		(*data) = calloc(1, sizeof(PLACEHOLDER));
 		(*data)->magic_word = -1;
 		printf("Failed to load %s\n", file_name);
-		return;
 	}
+	fclose(fptr);
 }
 
 void read_p2(PLACEHOLDER **data, FILE *fptr)
@@ -51,61 +51,52 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 
 	int i, j;
 	int count = 0, done = 0;
-	char line[1000];
+	char word[4];
+	char to_brazil[10000];
 
-	fgets(line, 1000, fptr);
-	while (fgets(line, 1000, fptr) != NULL) {
-		if (line[0] == '#')
+
+	while (fscanf(fptr, "%s", word) != EOF) {
+		if (word[0] == '#') {
+			fgets(to_brazil, 10000, fptr);
 			continue;
+		}
+		switch (count) {
+		case 0:
+			(*data)->width = strtol(word, NULL, 10);
+			(*data)->x2 = (*data)->width;
+			break;
 
-		char *token = strtok(line, " ");
-		while (token != NULL) {
-			switch (count) {
-			case 0:
-				(*data)->width = strtol(token, NULL, 10);
-				(*data)->x2 = (*data)->width;
-				break;
+		case 1:
+			(*data)->height = strtol(word, NULL, 10);
+			(*data)->y2 = (*data)->height;
+			break;
 
-			case 1:
-				(*data)->height = strtol(token, NULL, 10);
-				(*data)->y2 = (*data)->height;
-				break;
+		case 2:
+			(*data)->scale = strtol(word, NULL, 10);
+			break;
 
-			case 2:
-				(*data)->scale = strtol(token, NULL, 10);
-				break;
-
-			case 3:
-				(*data)->image->grayscale = calloc((*data)->height,
-												   sizeof(int *));
-				(*data)->image->grayscale[0] = calloc((*data)->width,
-													  sizeof(int));
-				j = 0;
-				while (token != NULL) {
-					(*data)->image->grayscale[0][j] = strtol(token, NULL, 10);
-					j++;
-					token = strtok(NULL, " \t");
-				}
-				done = 1;
-				break;
-			}
-
-			if (done == 1)
-				break;
-
-			count++;
-			token = strtok(NULL, " \t");
+		case 3:
+			(*data)->image->grayscale = calloc((*data)->height,
+											   sizeof(int *));
+			(*data)->image->grayscale[0] = calloc((*data)->width,
+												  sizeof(int));
+			(*data)->image->grayscale[0][0] = strtol(word, NULL, 10);
+			done = 1;
+			break;
 		}
 
 		if (done == 1)
 			break;
+		count++;
 	}
 
-	for (i = 1; i < (*data)->height; i++) {
-		(*data)->image->grayscale[i] = calloc((*data)->width,
-											  sizeof(int));
+	for (i = 0; i < (*data)->height; i++) {
+		if (i != 0)
+			(*data)->image->grayscale[i] = calloc((*data)->width,
+												  sizeof(int));
 		for (j = 0; j < (*data)->width; j++)
-			fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
+			if (i != 0 || j != 0)
+				fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
 	}
 }
 
@@ -114,74 +105,54 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
 	int i, j, k;
 	int count = 0, done = 0;
-	char line[1000];
+	char word[4];
+	char to_brazil[10000];
 
-	fgets(line, 1000, fptr);
-	while (fgets(line, 1000, fptr) != NULL) {
-		if (line[0] == '#')
+	while (fscanf(fptr, "%s", word) != EOF) {
+		if (word[0] == '#') {
+			fgets(to_brazil, 10000, fptr);
 			continue;
+		}
 
-		char *token = strtok(line, " ");
+		switch (count) {
+		case 0:
+			(*data)->width = strtol(word, NULL, 10);
+			(*data)->x2 = (*data)->width;
+			break;
 
-		while (token != NULL) {
+		case 1:
+			(*data)->height = strtol(word, NULL, 10);
+			(*data)->y2 = (*data)->height;
+			break;
 
-			switch (count) {
-			case 0:
-				(*data)->width = strtol(token, NULL, 10);
-				(*data)->x2 = (*data)->width;
-				break;
+		case 2:
+			(*data)->scale = strtol(word, NULL, 10);
+			break;
 
-			case 1:
-				(*data)->height = strtol(token, NULL, 10);
-				(*data)->y2 = (*data)->height;
-				break;
-
-			case 2:
-				(*data)->scale = strtol(token, NULL, 10);
-				break;
-
-			case 3:
-				j = 0;
-				k = 0;
-
-				(*data)->image->color = calloc((*data)->height,
-											   sizeof(int **));
-				(*data)->image->color[0] = calloc((*data)->width,
-												  sizeof(int *));
-				(*data)->image->color[0][0] = calloc(3, sizeof(int));
-				while (token != NULL) {
-					(*data)->image->color[0][j][k] = strtol(token, NULL, 10);
-					k++;
-					if (k == 3) {
-						k = 0;
-						j++;
-						(*data)->image->color[0][j] = calloc(3, sizeof(int));
-					}
-
-					token = strtok(NULL, " ");
-				}
-				done = 1;
-				break;
-			}
-
-			if (done == 1)
-				break;
-
-			count++;
-			token = strtok(NULL, " ");
+		case 3:
+			(*data)->image->color = calloc((*data)->height, sizeof(int **));
+			(*data)->image->color[0] = calloc((*data)->width, sizeof(int *));
+			(*data)->image->color[0][0] = calloc(3, sizeof(int));
+			(*data)->image->color[0][0][0] = strtol(word, NULL, 10);
+			done = 1;
+			break;
 		}
 
 		if (done == 1)
 			break;
+		count++;
 	}
 
-	for (i = 1; i < (*data)->height; i++) {
-		(*data)->image->color[i] = calloc((*data)->width,
-										  sizeof(int *));
+	for (i = 0; i < (*data)->height; i++) {
+		if (i != 0)
+			(*data)->image->color[i] = calloc((*data)->width, sizeof(int *));
 		for (j = 0; j < (*data)->width; j++) {
-			(*data)->image->color[i][j] = calloc(3, sizeof(int));
+			if (i != 0 || j != 0)
+				(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
-				fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
+				if (i != 0 || j != 0 || k != 0)
+					fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
+
 		}
 	}
 }
