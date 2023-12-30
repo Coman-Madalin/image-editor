@@ -184,3 +184,58 @@ void EQUALIZE(PLACEHOLDER *data)
 	printf("Equalize done\n");
 
 }
+
+void CROP(PLACEHOLDER **data)
+{
+	if ((*data)->magic_word == -1) {
+		printf("No image loaded\n");
+		return;
+	}
+	int i, j;
+
+	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
+	if ((*data)->magic_word == 2) {
+		new_image->grayscale = calloc((*data)->y2 - (*data)->y1, sizeof(int *));
+
+		for (i = (*data)->y1; i < (*data)->y2; i++) {
+
+			new_image->grayscale[i - (*data)->y1] = calloc(
+					(*data)->x2 - (*data)->x1, sizeof(int));
+			if (new_image->grayscale[i - (*data)->y1] == NULL) {
+				printf("Error allocating memory\n");
+				return;
+			}
+
+			for (j = (*data)->x1; j < (*data)->x2; j++)
+				new_image->grayscale[i - (*data)->y1][j - (*data)->x1]
+						= (*data)->image->grayscale[i][j];
+		}
+	} else {
+		new_image->color = calloc((*data)->y2 - (*data)->y1,
+								  sizeof(int **));
+		for (i = (*data)->y1; i < (*data)->y2; i++) {
+			new_image->color[i - (*data)->y1] = calloc(
+					(*data)->x2 - (*data)->x1, sizeof(int *));
+			for (j = (*data)->x1; j < (*data)->x2; j++) {
+				new_image->color[i - (*data)->y1][j - (*data)->x1] = calloc(
+						3, sizeof(int));
+				new_image->color[i - (*data)->y1][j -
+												  (*data)->x1][0] = (*data)->image->color[i][j][0];
+				new_image->color[i - (*data)->y1][j -
+												  (*data)->x1][1] = (*data)->image->color[i][j][1];
+				new_image->color[i - (*data)->y1][j -
+												  (*data)->x1][2] = (*data)->image->color[i][j][2];
+			}
+		}
+	}
+
+	(*data)->image = new_image;
+	(*data)->width = (*data)->x2 - (*data)->x1;
+	(*data)->height = (*data)->y2 - (*data)->y1;
+	(*data)->x1 = 0;
+	(*data)->x2 = (*data)->width;
+	(*data)->y1 = 0;
+	(*data)->y2 = (*data)->height;
+
+	printf("Image cropped.\n");
+}

@@ -59,9 +59,7 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 			continue;
 
 		char *token = strtok(line, " ");
-
 		while (token != NULL) {
-
 			switch (count) {
 			case 0:
 				(*data)->width = strtol(token, NULL, 10);
@@ -83,13 +81,10 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 				(*data)->image->grayscale[0] = calloc((*data)->width,
 													  sizeof(int));
 				j = 0;
-				char *token2 = strtok(token, " \t");
-				while (token2 != NULL) {
-					printf("TOKEN: %s\n", token2);
-					(*data)->image->grayscale[0][j] = strtol(token2,
-															 NULL, 10);
+				while (token != NULL) {
+					(*data)->image->grayscale[0][j] = strtol(token, NULL, 10);
 					j++;
-					token2 = strtok(NULL, " \t");
+					token = strtok(NULL, " \t");
 				}
 				done = 1;
 				break;
@@ -99,7 +94,7 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 				break;
 
 			count++;
-			token = strtok(NULL, " ");
+			token = strtok(NULL, " \t");
 		}
 
 		if (done == 1)
@@ -154,19 +149,16 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 				(*data)->image->color[0] = calloc((*data)->width,
 												  sizeof(int *));
 				(*data)->image->color[0][0] = calloc(3, sizeof(int));
-				char *token2 = strtok(token, " \t");
-				while (token2 != NULL) {
-					(*data)->image->color[0][j][k] = strtol(token2, NULL,
-															10);
+				while (token != NULL) {
+					(*data)->image->color[0][j][k] = strtol(token, NULL, 10);
 					k++;
 					if (k == 3) {
 						k = 0;
 						j++;
-						(*data)->image->color[0][j] = calloc(3,
-															 sizeof(int));
+						(*data)->image->color[0][j] = calloc(3, sizeof(int));
 					}
 
-					token2 = strtok(NULL, " ");
+					token = strtok(NULL, " ");
 				}
 				done = 1;
 				break;

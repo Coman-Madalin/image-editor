@@ -57,6 +57,8 @@ int main()
 			HISTOGRAM(data);
 		else if (strcmp(command, "EQUALIZE") == 0)
 			EQUALIZE(data);
+		else if (strcmp(command, "CROP") == 0)
+			CROP(&data);
 		else if (strcmp(command, "PRINT") == 0)
 			print_image(data);
 		else if (strcmp(command, "EXIT") == 0)
