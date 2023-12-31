@@ -181,6 +181,14 @@ void CROP(PLACEHOLDER **data)
 {
 	if (is_loaded(*data) == 0)
 		return;
+
+	if ((*data)->x1 == 0 && (*data)->x2 == (*data)->width &&
+		(*data)->y1 == 0 && (*data)->y2 == (*data)->height) {
+		printf("Image cropped\n");
+		return;
+	}
+
+
 	int i, j;
 
 	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
@@ -227,7 +235,7 @@ void CROP(PLACEHOLDER **data)
 	(*data)->y1 = 0;
 	(*data)->y2 = (*data)->height;
 
-	printf("Image cropped.\n");
+	printf("Image cropped\n");
 }
 
 void APPLY(PLACEHOLDER **data)
@@ -292,6 +300,8 @@ void SAVE(PLACEHOLDER *data)
 	fprintf(f, "%d %d\n", data->width, data->height);
 	fprintf(f, "%d\n", data->scale);
 
+//	printf("!!!!A[0][0] = %d\n", data->image->grayscale[0][0]);
+
 	int i, j;
 	if (data->magic_word == 2) {
 		for (i = 0; i < data->height; i++) {
@@ -299,7 +309,7 @@ void SAVE(PLACEHOLDER *data)
 				fprintf(f, "%d ", data->image->grayscale[i][j]);
 			fprintf(f, "\n");
 		}
-	} else {
+	} else if (data->magic_word == 3) {
 		for (i = 0; i < data->height; i++) {
 			for (j = 0; j < data->width; j++)
 				fprintf(f, "%d %d %d ", data->image->color[i][j][0],
@@ -310,5 +320,5 @@ void SAVE(PLACEHOLDER *data)
 	}
 
 	fclose(f);
-	printf("Image saved\n");
+	printf("Saved %s\n", filename);
 }
