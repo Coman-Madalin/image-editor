@@ -55,23 +55,24 @@ void LOAD(PLACEHOLDER **data)
 void read_common(PLACEHOLDER **data, FILE *fptr)
 {
 	int count = 0, pos = -1;
-	char word[4];
+	char word[5];
 	char to_brazil[10000];
 
-	while (fscanf(fptr, "%s", word) != EOF) {
+
+	while (fgets(word, 5, fptr)) {
 		if (word[0] == '#') {
 			fgets(to_brazil, 10000, fptr);
 			continue;
 		}
 		switch (count) {
 		case 0:
-			if (strcmp(word, "P2") == 0)
+			if (strncmp(word, "P2", 2) == 0)
 				(*data)->magic_word = 2;
-			else if (strcmp(word, "P3") == 0)
+			else if (strncmp(word, "P3", 2) == 0)
 				(*data)->magic_word = 3;
-			else if (strcmp(word, "P5") == 0)
+			else if (strncmp(word, "P5", 2) == 0)
 				(*data)->magic_word = 5;
-			else if (strcmp(word, "P6") == 0)
+			else if (strncmp(word, "P6", 2) == 0)
 				(*data)->magic_word = 6;
 			else {
 				(*data)->magic_word = -1;
