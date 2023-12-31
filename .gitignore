@@ -1,6 +1,8 @@
 cmake-build-debug/
 .idea/
-CMakeLists.txt
+.checkpatch-camelcase.git.
+**/*.out
+**/*.valgrind
 P1.pbm
 P2.pgm
 P3.ppm
