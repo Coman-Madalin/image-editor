@@ -5,12 +5,14 @@
 
 void LOAD(PLACEHOLDER **data);
 
+void read_common(PLACEHOLDER **data, FILE *fptr);
+
 void read_p2(PLACEHOLDER **data, FILE *fptr);
 
 void read_p3(PLACEHOLDER **data, FILE *fptr);
 
-//void read_p5(void **image, FILE *fptr);
+void read_p5(PLACEHOLDER **data, FILE *fptr);
 
-//void read_p6(void **image, FILE *fptr);
+void read_p6(PLACEHOLDER **data, FILE *fptr);
 
 #endif
