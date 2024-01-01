@@ -14,14 +14,15 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 		printf("Failed to load %s\n", file_name);
 		return;
 	}
-	read_common(data, fptr);
+
+	int first_byte = read_common(data, fptr);
 
 	if ((*data)->magic_word == 2) {
-		read_p2(data, fptr);
+		read_p2(data, fptr, first_byte - '0');
 		printf("Loaded %s\n", file_name);
 
 	} else if ((*data)->magic_word == 3) {
-		read_p3(data, fptr);
+		read_p3(data, fptr, first_byte - '0');
 		printf("Loaded %s\n", file_name);
 
 	} else if ((*data)->magic_word == 5) {
@@ -29,7 +30,7 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 		fclose(fptr);
 		fptr = fopen(file_name, "rb");
 		fseek(fptr, pos, SEEK_SET);
-		read_p5(data, fptr);
+		read_p5(data, fptr, first_byte);
 		(*data)->magic_word = 2;
 		printf("Loaded %s\n", file_name);
 
@@ -38,7 +39,7 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 		fclose(fptr);
 		fptr = fopen(file_name, "rb");
 		fseek(fptr, pos, SEEK_SET);
-		read_p6(data, fptr);
+		read_p6(data, fptr, first_byte);
 		(*data)->magic_word = 3;
 		printf("Loaded %s\n", file_name);
 
@@ -51,59 +52,60 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 	fclose(fptr);
 }
 
-void read_common(PLACEHOLDER **data, FILE *fptr)
+int read_common(PLACEHOLDER **data, FILE *fptr)
 {
-	int count = 0, pos = -1;
-	char word[5];
+	int count = 0;
+	int byte;
 	char to_brazil[10000];
-
-
-	while (fgets(word, 5, fptr)) {
-		if (word[0] == '#') {
+	while ((byte = fgetc(fptr)) != EOF) {
+		if (byte == 'P')
+			continue;
+		if (byte == '\n' || byte == ' ') {
+			count++;
+			continue;
+		}
+		if (byte == '#') {
 			fgets(to_brazil, 10000, fptr);
 			continue;
 		}
 		switch (count) {
 		case 0:
-			if (strncmp(word, "P2", 2) == 0)
+			if (byte == '2')
 				(*data)->magic_word = 2;
-			else if (strncmp(word, "P3", 2) == 0)
+			else if (byte == '3')
 				(*data)->magic_word = 3;
-			else if (strncmp(word, "P5", 2) == 0)
+			else if (byte == '5')
 				(*data)->magic_word = 5;
-			else if (strncmp(word, "P6", 2) == 0)
+			else if (byte == '6')
 				(*data)->magic_word = 6;
 			else {
 				(*data)->magic_word = -1;
-				return;
+				return -1;
 			}
 			break;
 		case 1:
-			(*data)->width = strtol(word, NULL, 10);
+			(*data)->width = (*data)->width * 10 + byte - '0';
 			(*data)->x2 = (*data)->width;
 			break;
 
 		case 2:
-			(*data)->height = strtol(word, NULL, 10);
+			(*data)->height = (*data)->height * 10 + byte - '0';
 			(*data)->y2 = (*data)->height;
 			break;
 
 		case 3:
-			(*data)->scale = strtol(word, NULL, 10);
+			(*data)->scale = (*data)->scale * 10 + byte - '0';
 			break;
 		case 4:
-			fseek(fptr, pos, SEEK_SET);
-			return;
+			return byte;
 		default:
 			break;
 		}
-		pos = ftell(fptr);
-		count++;
 	}
-
+	return -1;
 }
 
-void read_p2(PLACEHOLDER **data, FILE *fptr)
+void read_p2(PLACEHOLDER **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
 	(*data)->image->grayscale = calloc((*data)->height, sizeof(int *));
@@ -112,11 +114,13 @@ void read_p2(PLACEHOLDER **data, FILE *fptr)
 	for (i = 0; i < (*data)->height; i++) {
 		(*data)->image->grayscale[i] = calloc((*data)->width, sizeof(int));
 		for (j = 0; j < (*data)->width; j++)
-			fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
+				fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
 	}
+	(*data)->image->grayscale[0][0] = first_element * 10 +
+									  (*data)->image->grayscale[0][0];
 }
 
-void read_p3(PLACEHOLDER **data, FILE *fptr)
+void read_p3(PLACEHOLDER **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
 	(*data)->image->color = calloc((*data)->height, sizeof(int **));
@@ -127,12 +131,14 @@ void read_p3(PLACEHOLDER **data, FILE *fptr)
 		for (j = 0; j < (*data)->width; j++) {
 			(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
-				fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
+					fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
 		}
 	}
+	(*data)->image->color[0][0][0] = first_element * 10 +
+									 (*data)->image->color[0][0][0];
 }
 
-void read_p5(PLACEHOLDER **data, FILE *fptr)
+void read_p5(PLACEHOLDER **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
 	(*data)->image->grayscale = calloc((*data)->height, sizeof(int *));
@@ -140,11 +146,13 @@ void read_p5(PLACEHOLDER **data, FILE *fptr)
 	for (i = 0; i < (*data)->height; i++) {
 		(*data)->image->grayscale[i] = calloc((*data)->width, sizeof(int));
 		for (j = 0; j < (*data)->width; j++)
-			(*data)->image->grayscale[i][j] = fgetc(fptr);
+			if (i != 0 || j != 0)
+				(*data)->image->grayscale[i][j] = fgetc(fptr);
 	}
+	(*data)->image->grayscale[0][0] = first_element;
 }
 
-void read_p6(PLACEHOLDER **data, FILE *fptr)
+void read_p6(PLACEHOLDER **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE));
 	(*data)->image->color = calloc((*data)->height, sizeof(int **));
@@ -154,7 +162,9 @@ void read_p6(PLACEHOLDER **data, FILE *fptr)
 		for (j = 0; j < (*data)->width; j++) {
 			(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
-				(*data)->image->color[i][j][k] = fgetc(fptr);
+				if (i != 0 || j != 0 || k != 0)
+					(*data)->image->color[i][j][k] = fgetc(fptr);
 		}
 	}
+	(*data)->image->color[0][0][0] = first_element;
 }
