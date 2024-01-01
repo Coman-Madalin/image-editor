@@ -1,9 +1,10 @@
 #include "options_utils.h"
 
-int is_loaded(PLACEHOLDER *data)
+int is_loaded(PLACEHOLDER *data, int option)
 {
 	if (data->magic_word == -1) {
-		printf("No data loaded\n");
+		if(option == 1)
+			printf("No image loaded\n");
 		return 0;
 	}
 	return 1;
@@ -133,7 +134,7 @@ void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
 		}
 	}
 
-	// free the old image
+	// Free the old image
 	for (i = 0; i < (*data)->height; i++) {
 		for (j = 0; j < (*data)->width; j++) {
 			free((*data)->image->color[i][j]);

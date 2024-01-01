@@ -2,11 +2,11 @@
 
 void SELECT(PLACEHOLDER **data)
 {
-	if (is_loaded(*data) == 0)
-		return;
-
 	char all[100];
 	fgets(all, 100, stdin);
+	if (is_loaded(*data, 1) == 0)
+		return;
+
 	if (strncmp(all, " ALL", 4) == 0) {
 		(*data)->x1 = 0;
 		(*data)->y1 = 0;
@@ -60,6 +60,11 @@ void SELECT(PLACEHOLDER **data)
 	if (invalid == 1)
 		return;
 
+	if(x1 == x2 || y1 == y2){
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+
 	if (x1 > x2) {
 		int aux = x1;
 		x1 = x2;
@@ -83,7 +88,7 @@ void HISTOGRAM(PLACEHOLDER *data)
 {
 	int bins, max_stars, nr_values = 0;
 	scanf("%d %d", &max_stars, &bins);
-	if (is_loaded(data) == 0)
+	if (is_loaded(data, 1) == 0)
 		return;
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
@@ -129,30 +134,28 @@ void HISTOGRAM(PLACEHOLDER *data)
 	}
 }
 
-void EQUALIZE(PLACEHOLDER *data)
+void EQUALIZE(PLACEHOLDER **data)
 {
-	if (is_loaded(data) == 0)
+	if (is_loaded((*data), 1) == 0)
 		return;
 
-	if (data->magic_word == 3) {
+	if ((*data)->magic_word == 3) {
 		printf("Black and white image needed\n");
 		return;
 	}
 
-	int **vf = calloc((data->scale + 1), sizeof(int *));
+	int vf[256][3];
 	int i, j;
 
-	for (i = 0; i < data->height; i++)
-		for (j = 0; j < data->width; j++) {
-			int value = data->image->grayscale[i][j];
-			if (vf[value] == NULL)
-				vf[value] = calloc(3, sizeof(int));
+	for (i = 0; i < (*data)->height; i++)
+		for (j = 0; j < (*data)->width; j++) {
+			int value = (*data)->image->grayscale[i][j];
 			vf[value][0]++;
 		}
 
 	int current_sum = 0;
 	int first_value;
-	for (i = 0; i <= data->scale; i++)
+	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i] != NULL) {
 			if (current_sum == 0)
 				first_value = vf[i][0];
@@ -160,17 +163,17 @@ void EQUALIZE(PLACEHOLDER *data)
 			vf[i][1] = current_sum;
 		}
 
-	for (i = 0; i <= data->scale; i++)
+	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i] != NULL)
 			vf[i][2] = round((double) (vf[i][1] - first_value) /
-							 ((data->width * data->height) - first_value) *
-							 data->scale);
+							 (((*data)->width * (*data)->height) - first_value) *
+							 (*data)->scale);
 
 
-	for (i = 0; i < data->height; i++)
-		for (j = 0; j < data->width; j++) {
-			int value = data->image->grayscale[i][j];
-			data->image->grayscale[i][j] = vf[value][2];
+	for (i = 0; i < (*data)->height; i++)
+		for (j = 0; j < (*data)->width; j++) {
+			int value = (*data)->image->grayscale[i][j];
+			(*data)->image->grayscale[i][j] = vf[value][2];
 		}
 
 	printf("Equalize done\n");
@@ -179,7 +182,7 @@ void EQUALIZE(PLACEHOLDER *data)
 
 void CROP(PLACEHOLDER **data)
 {
-	if (is_loaded(*data) == 0)
+	if (is_loaded(*data, 1) == 0)
 		return;
 
 	if ((*data)->x1 == 0 && (*data)->x2 == (*data)->width &&
@@ -240,10 +243,27 @@ void CROP(PLACEHOLDER **data)
 
 void APPLY(PLACEHOLDER **data)
 {
+	char is_end_of_line = getchar();
 	char parameter[13];
-	scanf("%s", parameter);
-	if (is_loaded(*data) == 0)
+
+	if (is_end_of_line == '\n' && is_loaded(*data, 0) == 1) {
+		printf("Invalid command\n");
 		return;
+	}
+
+
+	if (is_loaded(*data, 1) == 0 && is_end_of_line == '\n')
+		return;
+
+	if (is_end_of_line != '\n') {
+		scanf("%s", parameter);
+		if (is_loaded(*data, 1) == 0) {
+			char to_brazil[100];
+			fgets(to_brazil, 100, stdin);
+			return;
+		}
+	}
+
 
 	int kernel[3][3];
 	if (strcmp(parameter, "EDGE") == 0) {
@@ -284,11 +304,11 @@ void APPLY(PLACEHOLDER **data)
 
 void SAVE(PLACEHOLDER *data)
 {
-	if (is_loaded(data) == 0)
-		return;
-
 	char *filename = calloc(100, sizeof(char));
 	scanf("%s", filename);
+	if (is_loaded(data, 1) == 0)
+		return;
+
 
 	FILE *f = fopen(filename, "w");
 	if (f == NULL) {

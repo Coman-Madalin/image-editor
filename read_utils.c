@@ -10,7 +10,8 @@ void LOAD(PLACEHOLDER **data)
 	char *file_name = calloc(100, sizeof(char));
 
 	scanf("%s", file_name);
-	FILE *fptr = fopen(file_name, "r");
+	FILE *fptr = NULL;
+	fptr = fopen(file_name, "r");
 	if (fptr == NULL) {
 		printf("Failed to load %s\n", file_name);
 		return;

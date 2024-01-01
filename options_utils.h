@@ -3,7 +3,7 @@
 
 #include "structure_header.h"
 
-int is_loaded(PLACEHOLDER *data);
+int is_loaded(PLACEHOLDER *data, int option);
 
 void clamp(int *value, int min, int max);
 
