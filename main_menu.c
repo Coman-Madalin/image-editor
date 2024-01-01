@@ -2,7 +2,7 @@
 
 void PRELOAD(PLACEHOLDER **data, char *token)
 {
-	token = strtok(NULL, " \n");
+	token = strtok(NULL, "\n ");
 	LOAD(data, token);
 }
 
@@ -14,7 +14,7 @@ void PRESELECT(PLACEHOLDER **data, char *token)
 	if (is_loaded(*data, 1) == 0)
 		return;
 	for (i = 0; i < 4; i++) {
-		token = strtok(NULL, " \n");
+		token = strtok(NULL, "\n ");
 		if (i == 0) {
 			if (strncmp(token, "ALL", 3) == 0) {
 				(*data)->x1 = 0;

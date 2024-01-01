@@ -16,7 +16,7 @@ void print_image(PLACEHOLDER *data)
 		for (i = 0; i < 10; i++) {
 			for (j = 0; j < 60; j++)
 				printf("%d ", data->image->grayscale[i][j]);
-			printf("\n");
+			printf("\n\n");
 		}
 		return;
 	}
@@ -31,7 +31,7 @@ void print_image(PLACEHOLDER *data)
 				printf("%d %d %d ", data->image->color[i][j][0],
 					   data->image->color[i][j][1],
 					   data->image->color[i][j][2]);
-			printf("\n");
+			printf("\n\n");
 		}
 		return;
 	}
@@ -71,7 +71,9 @@ int main(void)
 	data->magic_word = -1;
 	while (1 != 0) {
 		fgets(command, 50, stdin);
-		char *token = strtok(command, " \n");
+		char *token = strtok(command, "\n ");
+		if(token == NULL)
+			continue;
 		if (strcmp(token, "LOAD") == 0)
 			PRELOAD(&data, token);
 		else if (strcmp(token, "SELECT") == 0)
@@ -84,16 +86,16 @@ int main(void)
 			CROP(&data);
 		else if (strcmp(token, "APPLY") == 0)
 			PREAPPLY(&data, token);
-		else if (strcmp(token, "SAVE") == 0) {
+		else if (strcmp(token, "SAVE") == 0)
 			PRESAVE(data, token);
-		} else if (strcmp(token, "PRINT") == 0)
+		else if (strcmp(token, "PRINT") == 0)
 			print_image(data);
 		else if (strncmp(token, "ANY", 3) == 0) {
 			if (any_off_limits(data) == 0)
 				printf("OK\n");
 		} else if (strcmp(command, "EXIT") == 0) {
 			if (PREEXIT(&data) == 1)
-				break;
+				return 0;
 		} else if (strcmp(command, "ascii") == 0)
 			continue;
 		else {

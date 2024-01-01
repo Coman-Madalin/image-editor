@@ -105,7 +105,7 @@ void EQUALIZE(PLACEHOLDER **data)
 		return;
 	}
 
-	int vf[256][3];
+	int vf[256][3] = {0};
 	int i, j;
 
 	for (i = 0; i < (*data)->height; i++)
@@ -117,7 +117,7 @@ void EQUALIZE(PLACEHOLDER **data)
 	int current_sum = 0;
 	int first_value;
 	for (i = 0; i <= (*data)->scale; i++)
-		if (vf[i] != NULL) {
+		if (vf[i]) {
 			if (current_sum == 0)
 				first_value = vf[i][0];
 			current_sum += vf[i][0];
@@ -125,12 +125,11 @@ void EQUALIZE(PLACEHOLDER **data)
 		}
 
 	for (i = 0; i <= (*data)->scale; i++)
-		if (vf[i] != NULL)
+		if (vf[i])
 			vf[i][2] = round((double) (vf[i][1] - first_value) /
 							 (((*data)->width * (*data)->height) -
 							  first_value) *
 							 (*data)->scale);
-
 
 	for (i = 0; i < (*data)->height; i++)
 		for (j = 0; j < (*data)->width; j++) {
@@ -139,7 +138,6 @@ void EQUALIZE(PLACEHOLDER **data)
 		}
 
 	printf("Equalize done\n");
-
 }
 
 void CROP(PLACEHOLDER **data)
@@ -205,7 +203,7 @@ void CROP(PLACEHOLDER **data)
 
 void APPLY(PLACEHOLDER **data, char *parameter)
 {
-	if (parameter == NULL) {
+	if (!parameter) {
 		if (is_loaded(*data, 1) == 0)
 			return;
 		else {
@@ -255,22 +253,17 @@ void APPLY(PLACEHOLDER **data, char *parameter)
 	}
 }
 
-void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
+int save_ascii(PLACEHOLDER *data, char *filename)
 {
-	if (is_loaded(data, 1) == 0)
-		return;
-
 	FILE *f = fopen(filename, "w");
-	if (f == NULL) {
+	if (!f) {
 		printf("Error opening file\n");
-		return;
+		return 1;
 	}
 
 	fprintf(f, "P%d\n", data->magic_word);
 	fprintf(f, "%d %d\n", data->width, data->height);
 	fprintf(f, "%d\n", data->scale);
-
-//	printf("!!!!A[0][0] = %d\n", data->image->grayscale[0][0]);
 
 	int i, j;
 	if (data->magic_word == 2) {
@@ -288,7 +281,57 @@ void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
 			fprintf(f, "\n");
 		}
 	}
-
 	fclose(f);
-	printf("Saved %s\n", filename);
+	return 0;
+}
+
+int save_binary(PLACEHOLDER *data, char *token)
+{
+	FILE *f = fopen(token, "wb");
+	if (!f) {
+		printf("Error opening file\n");
+		return 1;
+	}
+
+	if (data->magic_word == 2)
+		data->magic_word = 5;
+	else
+		data->magic_word = 6;
+	fprintf(f, "P%d\n", data->magic_word);
+	fprintf(f, "%d %d\n", data->width, data->height);
+	fprintf(f, "%d\n", data->scale);
+
+	int i, j, k;
+	if (data->magic_word == 5) {
+		for (i = 0; i < data->height; i++)
+			for (j = 0; j < data->width; j++)
+				fwrite(&(data->image->grayscale[i][j]), 1, 1, f);
+
+	} else if (data->magic_word == 6) {
+		for (i = 0; i < data->height; i++)
+			for (j = 0; j < data->width; j++)
+				for (k = 0; k < 3; k++)
+					fwrite(&(data->image->color[i][j][k]), 1, 1, f);
+	}
+	fclose(f);
+	return 0;
+}
+
+void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
+{
+	if (is_loaded(data, 1) == 0)
+		return;
+
+	if (!ascii) {
+		if (save_binary(data, filename) == 0)
+			printf("Saved %s\n", filename);
+		return;
+	} else if (strcmp(ascii, "ascii") == 0) {
+		if (save_ascii(data, filename) == 0)
+			printf("Saved %s\n", filename);
+		return;
+	} else {
+		printf("Invalid command\n");
+		return;
+	}
 }
