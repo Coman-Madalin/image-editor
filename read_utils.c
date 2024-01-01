@@ -2,14 +2,12 @@
 
 // TODO: Free correctly the memory allocated for the previous image
 
-void LOAD(PLACEHOLDER **data)
+void LOAD(PLACEHOLDER **data, char *file_name)
 {
 	free(*data);
 	(*data) = calloc(1, sizeof(PLACEHOLDER));
 	(*data)->magic_word = -1;
-	char *file_name = calloc(100, sizeof(char));
 
-	scanf("%s", file_name);
 	FILE *fptr = NULL;
 	fptr = fopen(file_name, "r");
 	if (fptr == NULL) {

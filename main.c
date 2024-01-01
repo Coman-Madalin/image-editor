@@ -1,6 +1,5 @@
-#include <stdio.h>
-#include <string.h>
 #include "structure_header.h"
+#include "main_menu.h"
 #include "options_header.h"
 #include "read_utils.h"
 
@@ -68,29 +67,71 @@ int any_off_limits(PLACEHOLDER *data)
 
 int main(void)
 {
-	char command[9];
+	char command[50];
 	PLACEHOLDER *data = calloc(1, sizeof(PLACEHOLDER));
 	char to_brazil[100];
 	data->magic_word = -1;
 	while (1 != 0) {
-		scanf("%s", command);
-		if (strcmp(command, "LOAD") == 0)
-			LOAD(&data);
-		else if (strcmp(command, "SELECT") == 0)
-			SELECT(&data);
-		else if (strcmp(command, "HISTOGRAM") == 0)
-			HISTOGRAM(data);
-		else if (strcmp(command, "EQUALIZE") == 0)
+		fgets(command, 50, stdin);
+		char *token = strtok(command, " \n");
+		if (strcmp(token, "LOAD") == 0) {
+			token = strtok(NULL, " \n");
+			LOAD(&data, token);
+		} else if (strcmp(token, "SELECT") == 0) {
+			int i;
+			int x1, y1, x2, y2;
+			int is_all = 0;
+			if(is_loaded(data, 1) == 0)
+				continue;
+			for (i = 0; i < 4; i++) {
+				token = strtok(NULL, " \n");
+				if (i == 0) {
+					if (strncmp(token, "ALL", 3) == 0) {
+						data->x1 = 0;
+						data->y1 = 0;
+						data->x2 = data->width;
+						data->y2 = data->height;
+						printf("Selected ALL\n");
+						is_all = 1;
+						break;
+					} else
+						x1 = strtol(token, NULL, 10);
+				} else if (i == 1)
+					y1 = strtol(token, NULL, 10);
+				else if (i == 2)
+					x2 = strtol(token, NULL, 10);
+				else
+					y2 = strtol(token, NULL, 10);
+			}
+			if (is_all == 0)
+				SELECT(&data, x1, y1, x2, y2);
+
+		} else if (strcmp(token, "HISTOGRAM") == 0) {
+			int i;
+			int bins, stars;
+			for (i = 0; i < 2; i++) {
+				token = strtok(NULL, " \n");
+				if (i == 0)
+					bins = strtol(token, NULL, 10);
+				else
+					stars = strtol(token, NULL, 10);
+			}
+			HISTOGRAM(data, bins, stars);
+		} else if (strcmp(token, "EQUALIZE") == 0)
 			EQUALIZE(&data);
-		else if (strcmp(command, "CROP") == 0)
+		else if (strcmp(token, "CROP") == 0)
 			CROP(&data);
-		else if (strcmp(command, "APPLY") == 0)
-			APPLY(&data);
-		else if (strcmp(command, "SAVE") == 0)
-			SAVE(data);
-		else if (strcmp(command, "PRINT") == 0)
+		else if (strcmp(token, "APPLY") == 0) {
+			token = strtok(NULL, " \n");
+			APPLY(&data, token);
+		} else if (strcmp(token, "SAVE") == 0) {
+			token = strtok(NULL, " \n");
+			char *file_name = token;
+			token = strtok(NULL, " \n");
+			SAVE(data, file_name, token);
+		} else if (strcmp(token, "PRINT") == 0)
 			print_image(data);
-		else if (strncmp(command, "ANY", 3) == 0) {
+		else if (strncmp(token, "ANY", 3) == 0) {
 			if (any_off_limits(data) == 0)
 				printf("OK\n");
 		} else if (strcmp(command, "EXIT") == 0) {
@@ -99,7 +140,6 @@ int main(void)
 		} else if (strcmp(command, "ascii") == 0)
 			continue;
 		else {
-			fgets(to_brazil, 100, stdin);
 			printf("Invalid command\n");
 		}
 

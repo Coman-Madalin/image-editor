@@ -3,7 +3,7 @@
 
 #include "structure_header.h"
 
-void LOAD(PLACEHOLDER **data);
+void LOAD(PLACEHOLDER **data, char *file_name);
 
 void read_common(PLACEHOLDER **data, FILE *fptr);
 

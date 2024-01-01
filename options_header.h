@@ -4,16 +4,16 @@
 #include "structure_header.h"
 #include "options_utils.h"
 
-void SELECT(PLACEHOLDER **data);
+void SELECT(PLACEHOLDER **data, int x1, int y1, int x2, int y2);
 
-void HISTOGRAM(PLACEHOLDER *data);
+void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars);
 
 void EQUALIZE(PLACEHOLDER **data);
 
 void CROP(PLACEHOLDER **data);
 
-void APPLY(PLACEHOLDER **data);
+void APPLY(PLACEHOLDER **data, char *parameter);
 
-void SAVE(PLACEHOLDER *data);
+void SAVE(PLACEHOLDER *data, char *filename, char *ascii);
 
 #endif

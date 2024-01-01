@@ -1,66 +1,28 @@
 #include "options_header.h"
 
-void SELECT(PLACEHOLDER **data)
+void SELECT(PLACEHOLDER **data, int x1, int y1, int x2, int y2)
 {
-	char all[100];
-	fgets(all, 100, stdin);
 	if (is_loaded(*data, 1) == 0)
 		return;
 
-	if (strncmp(all, " ALL", 4) == 0) {
-		(*data)->x1 = 0;
-		(*data)->y1 = 0;
-		(*data)->x2 = (*data)->width;
-		(*data)->y2 = (*data)->height;
-		printf("Selected ALL\n");
+	if (x1 < 0 || x1 > (*data)->width) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (y1 < 0 || y1 > (*data)->height) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (x2 < 0 || x2 > (*data)->width) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (y2 < 0 || y2 > (*data)->height) {
+		printf("Invalid set of coordinates\n");
 		return;
 	}
 
-	char *token = strtok(all, " ");
-	int count = 1;
-	int x1, y1, x2, y2;
-	int invalid = 0;
-	while (token != NULL) {
-		if (count == 1) {
-			x1 = strtol(token, NULL, 10);
-			if (x1 < 0 || x1 > (*data)->width) {
-				printf("Invalid set of coordinates\n");
-				invalid = 1;
-				break;
-			}
-		}
-
-		if (count == 2) {
-			y1 = strtol(token, NULL, 10);
-			if (y1 < 0 || y1 > (*data)->height) {
-				printf("Invalid set of coordinates\n");
-				invalid = 1;
-				break;
-			}
-		}
-		if (count == 3) {
-			x2 = strtol(token, NULL, 10);
-			if (x2 < 0 || x2 > (*data)->width) {
-				printf("Invalid set of coordinates\n");
-				invalid = 1;
-				break;
-			}
-		}
-		if (count == 4) {
-			y2 = strtol(token, NULL, 10);
-			if (y2 < 0 || y2 > (*data)->height) {
-				printf("Invalid set of coordinates\n");
-				invalid = 1;
-				break;
-			}
-		}
-		count++;
-		token = strtok(NULL, " ");
-	}
-	if (invalid == 1)
-		return;
-
-	if(x1 == x2 || y1 == y2){
+	if (x1 == x2 || y1 == y2) {
 		printf("Invalid set of coordinates\n");
 		return;
 	}
@@ -84,10 +46,9 @@ void SELECT(PLACEHOLDER **data)
 	printf("Selected %d %d %d %d\n", x1, y1, x2, y2);
 }
 
-void HISTOGRAM(PLACEHOLDER *data)
+void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 {
-	int bins, max_stars, nr_values = 0;
-	scanf("%d %d", &max_stars, &bins);
+	int nr_values = 0;
 	if (is_loaded(data, 1) == 0)
 		return;
 	if (data->magic_word == 3) {
@@ -166,7 +127,8 @@ void EQUALIZE(PLACEHOLDER **data)
 	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i] != NULL)
 			vf[i][2] = round((double) (vf[i][1] - first_value) /
-							 (((*data)->width * (*data)->height) - first_value) *
+							 (((*data)->width * (*data)->height) -
+							  first_value) *
 							 (*data)->scale);
 
 
@@ -241,29 +203,20 @@ void CROP(PLACEHOLDER **data)
 	printf("Image cropped\n");
 }
 
-void APPLY(PLACEHOLDER **data)
+void APPLY(PLACEHOLDER **data, char *parameter)
 {
-	char is_end_of_line = getchar();
-	char parameter[13];
-
-	if (is_end_of_line == '\n' && is_loaded(*data, 0) == 1) {
-		printf("Invalid command\n");
-		return;
-	}
-
-
-	if (is_loaded(*data, 1) == 0 && is_end_of_line == '\n')
-		return;
-
-	if (is_end_of_line != '\n') {
-		scanf("%s", parameter);
-		if (is_loaded(*data, 1) == 0) {
-			char to_brazil[100];
-			fgets(to_brazil, 100, stdin);
+	if (parameter == NULL) {
+		if (is_loaded(*data, 1) == 0)
+			return;
+		else {
+			printf("Invalid command\n");
 			return;
 		}
 	}
 
+	if (is_loaded(*data, 1) == 0) {
+		return;
+	}
 
 	int kernel[3][3];
 	if (strcmp(parameter, "EDGE") == 0) {
@@ -302,13 +255,10 @@ void APPLY(PLACEHOLDER **data)
 	}
 }
 
-void SAVE(PLACEHOLDER *data)
+void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
 {
-	char *filename = calloc(100, sizeof(char));
-	scanf("%s", filename);
 	if (is_loaded(data, 1) == 0)
 		return;
-
 
 	FILE *f = fopen(filename, "w");
 	if (f == NULL) {
