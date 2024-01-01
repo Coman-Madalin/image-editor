@@ -1,7 +1,6 @@
 #include "structure_header.h"
 #include "main_menu.h"
 #include "options_header.h"
-#include "read_utils.h"
 
 void print_image(PLACEHOLDER *data)
 {
@@ -69,74 +68,32 @@ int main(void)
 {
 	char command[50];
 	PLACEHOLDER *data = calloc(1, sizeof(PLACEHOLDER));
-	char to_brazil[100];
 	data->magic_word = -1;
 	while (1 != 0) {
 		fgets(command, 50, stdin);
 		char *token = strtok(command, " \n");
-		if (strcmp(token, "LOAD") == 0) {
-			token = strtok(NULL, " \n");
-			LOAD(&data, token);
-		} else if (strcmp(token, "SELECT") == 0) {
-			int i;
-			int x1, y1, x2, y2;
-			int is_all = 0;
-			if(is_loaded(data, 1) == 0)
-				continue;
-			for (i = 0; i < 4; i++) {
-				token = strtok(NULL, " \n");
-				if (i == 0) {
-					if (strncmp(token, "ALL", 3) == 0) {
-						data->x1 = 0;
-						data->y1 = 0;
-						data->x2 = data->width;
-						data->y2 = data->height;
-						printf("Selected ALL\n");
-						is_all = 1;
-						break;
-					} else
-						x1 = strtol(token, NULL, 10);
-				} else if (i == 1)
-					y1 = strtol(token, NULL, 10);
-				else if (i == 2)
-					x2 = strtol(token, NULL, 10);
-				else
-					y2 = strtol(token, NULL, 10);
-			}
-			if (is_all == 0)
-				SELECT(&data, x1, y1, x2, y2);
-
-		} else if (strcmp(token, "HISTOGRAM") == 0) {
-			int i;
-			int bins, stars;
-			for (i = 0; i < 2; i++) {
-				token = strtok(NULL, " \n");
-				if (i == 0)
-					bins = strtol(token, NULL, 10);
-				else
-					stars = strtol(token, NULL, 10);
-			}
-			HISTOGRAM(data, bins, stars);
-		} else if (strcmp(token, "EQUALIZE") == 0)
+		if (strcmp(token, "LOAD") == 0)
+			PRELOAD(&data, token);
+		else if (strcmp(token, "SELECT") == 0)
+			PRESELECT(&data, token);
+		else if (strcmp(token, "HISTOGRAM") == 0)
+			PREHISTOGRAM(data, token);
+		else if (strcmp(token, "EQUALIZE") == 0)
 			EQUALIZE(&data);
 		else if (strcmp(token, "CROP") == 0)
 			CROP(&data);
-		else if (strcmp(token, "APPLY") == 0) {
-			token = strtok(NULL, " \n");
-			APPLY(&data, token);
-		} else if (strcmp(token, "SAVE") == 0) {
-			token = strtok(NULL, " \n");
-			char *file_name = token;
-			token = strtok(NULL, " \n");
-			SAVE(data, file_name, token);
+		else if (strcmp(token, "APPLY") == 0)
+			PREAPPLY(&data, token);
+		else if (strcmp(token, "SAVE") == 0) {
+			PRESAVE(data, token);
 		} else if (strcmp(token, "PRINT") == 0)
 			print_image(data);
 		else if (strncmp(token, "ANY", 3) == 0) {
 			if (any_off_limits(data) == 0)
 				printf("OK\n");
 		} else if (strcmp(command, "EXIT") == 0) {
-			is_loaded(data, 1);
-			break;
+			if (PREEXIT(&data) == 1)
+				break;
 		} else if (strcmp(command, "ascii") == 0)
 			continue;
 		else {
