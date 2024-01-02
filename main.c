@@ -64,6 +64,11 @@ int any_off_limits(PLACEHOLDER *data)
 	return 0;
 }
 
+void M(PLACEHOLDER *data)
+{
+	printf("MAGIC NUMBER: %d\n", data->magic_word);
+}
+
 int main(void)
 {
 	char command[50];
@@ -90,6 +95,8 @@ int main(void)
 			PRESAVE(data, token);
 		else if (strcmp(token, "PRINT") == 0)
 			print_image(data);
+		else if (strcmp(token, "M") == 0)
+			M(data);
 		else if (strncmp(token, "ANY", 3) == 0) {
 			if (any_off_limits(data) == 0)
 				printf("OK\n");
@@ -101,7 +108,6 @@ int main(void)
 		else {
 			printf("Invalid command\n");
 		}
-
 	}
 	return 0;
 }

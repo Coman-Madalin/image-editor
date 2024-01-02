@@ -113,8 +113,12 @@ void read_p2(PLACEHOLDER **data, FILE *fptr, int first_element)
 	int i, j;
 	for (i = 0; i < (*data)->height; i++) {
 		(*data)->image->grayscale[i] = calloc((*data)->width, sizeof(int));
-		for (j = 0; j < (*data)->width; j++)
-			fscanf(fptr, "%d", &((*data)->image->grayscale[i][j]));
+		for (j = 0; j < (*data)->width; j++) {
+			int value;
+			fscanf(fptr, "%d", &value);
+			clamp(&value, 0, (*data)->scale);
+			(*data)->image->grayscale[i][j] = value;
+		}
 	}
 	(*data)->image->grayscale[0][0] = first_element * 10 +
 									  (*data)->image->grayscale[0][0];
@@ -131,7 +135,13 @@ void read_p3(PLACEHOLDER **data, FILE *fptr, int first_element)
 		for (j = 0; j < (*data)->width; j++) {
 			(*data)->image->color[i][j] = calloc(3, sizeof(int));
 			for (k = 0; k < 3; k++)
-				fscanf(fptr, "%d", &((*data)->image->color[i][j][k]));
+			{
+				int value;
+				fscanf(fptr, "%d", &value);
+				clamp(&value, 0, (*data)->scale);
+				(*data)->image->color[i][j][k] = value;
+			}
+
 		}
 	}
 	(*data)->image->color[0][0][0] = first_element * 10 +
@@ -148,6 +158,7 @@ void read_p5(PLACEHOLDER **data, FILE *fptr, int first_element)
 		for (j = 0; j < (*data)->width; j++)
 			if (i != 0 || j != 0) {
 				int value = fgetc(fptr);
+				clamp(&value, 0, (*data)->scale);
 				(*data)->image->grayscale[i][j] = value;
 			}
 	}
@@ -166,6 +177,7 @@ void read_p6(PLACEHOLDER **data, FILE *fptr, int first_element)
 			for (k = 0; k < 3; k++)
 				if (i != 0 || j != 0 || k != 0) {
 					int value = fgetc(fptr);
+					clamp(&value, 0, (*data)->scale);
 					(*data)->image->color[i][j][k] = value;
 				}
 		}

@@ -2,6 +2,7 @@
 #define READ_UTILS_H
 
 #include "structure_header.h"
+#include "options_header.h"
 
 void LOAD(PLACEHOLDER **data, char *file_name);
 

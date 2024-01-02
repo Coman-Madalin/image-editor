@@ -56,7 +56,7 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 		return;
 	}
 
-	int *vf = calloc(data->scale, sizeof(int));
+	int vf[256] = {0};
 
 	int i, j;
 
@@ -151,7 +151,6 @@ void CROP(PLACEHOLDER **data)
 		return;
 	}
 
-
 	int i, j;
 
 	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
@@ -178,8 +177,8 @@ void CROP(PLACEHOLDER **data)
 			new_image->color[i - (*data)->y1] = calloc(
 					(*data)->x2 - (*data)->x1, sizeof(int *));
 			for (j = (*data)->x1; j < (*data)->x2; j++) {
-				new_image->color[i - (*data)->y1][j - (*data)->x1] = calloc(
-						3, sizeof(int));
+				new_image->color[i - (*data)->y1][j - (*data)->x1] = calloc(3,
+																			sizeof(int));
 				new_image->color[i - (*data)->y1][j -
 												  (*data)->x1][0] = (*data)->image->color[i][j][0];
 				new_image->color[i - (*data)->y1][j -
@@ -294,20 +293,19 @@ int save_binary(PLACEHOLDER *data, char *token)
 	}
 
 	if (data->magic_word == 2)
-		data->magic_word = 5;
+		fprintf(f, "P5\n");
 	else
-		data->magic_word = 6;
-	fprintf(f, "P%d\n", data->magic_word);
+		fprintf(f, "P6\n");
 	fprintf(f, "%d %d\n", data->width, data->height);
 	fprintf(f, "%d\n", data->scale);
 
 	int i, j, k;
-	if (data->magic_word == 5) {
+	if (data->magic_word == 2) {
 		for (i = 0; i < data->height; i++)
 			for (j = 0; j < data->width; j++)
 				fwrite(&(data->image->grayscale[i][j]), 1, 1, f);
 
-	} else if (data->magic_word == 6) {
+	} else if (data->magic_word == 3) {
 		for (i = 0; i < data->height; i++)
 			for (j = 0; j < data->width; j++)
 				for (k = 0; k < 3; k++)
@@ -317,6 +315,7 @@ int save_binary(PLACEHOLDER *data, char *token)
 	return 0;
 }
 
+/**** DELETE everything related with binary save and will score 54.5/100 ****/
 void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
 {
 	if (is_loaded(data, 1) == 0)
