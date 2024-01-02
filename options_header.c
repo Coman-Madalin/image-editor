@@ -49,8 +49,6 @@ void SELECT(PLACEHOLDER **data, int x1, int y1, int x2, int y2)
 void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 {
 	int nr_values = 0;
-	if (is_loaded(data, 1) == 0)
-		return;
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
 		return;
