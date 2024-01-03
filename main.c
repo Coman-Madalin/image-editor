@@ -77,7 +77,7 @@ int main(void)
 	while (1 != 0) {
 		fgets(command, 50, stdin);
 		char *token = strtok(command, "\n ");
-		if(token == NULL)
+		if (!token)
 			continue;
 		if (strcmp(token, "LOAD") == 0)
 			PRELOAD(&data, token);

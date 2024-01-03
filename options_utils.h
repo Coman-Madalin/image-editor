@@ -7,7 +7,7 @@ int is_loaded(PLACEHOLDER *data, int option);
 
 void clamp(int *value, int min, int max);
 
-int is_Chaplin(PLACEHOLDER *data);
+int is_chaplin(PLACEHOLDER *data);
 
 void EDGE(int kernel[3][3]);
 

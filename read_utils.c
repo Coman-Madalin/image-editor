@@ -10,7 +10,7 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 
 	FILE *fptr = NULL;
 	fptr = fopen(file_name, "r");
-	if (fptr == NULL) {
+	if (!fptr) {
 		printf("Failed to load %s\n", file_name);
 		return;
 	}
@@ -140,7 +140,6 @@ void read_p3(PLACEHOLDER **data, FILE *fptr, int first_element)
 				clamp(&value, 0, (*data)->scale);
 				(*data)->image->color[i][j][k] = value;
 			}
-
 		}
 	}
 	(*data)->image->color[0][0][0] = first_element * 10 +

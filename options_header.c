@@ -48,7 +48,6 @@ void SELECT(PLACEHOLDER **data, int x1, int y1, int x2, int y2)
 
 void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 {
-	int nr_values = 0;
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
 		return;
@@ -78,7 +77,7 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 	}
 
 	for (i = 0; i < bins; i++) {
-		int nr_stars = trunc((double) bin[i] * max_stars / max_freq);
+		int nr_stars = trunc((double)bin[i] * max_stars / max_freq);
 		printf("%d\t|\t", nr_stars);
 		for (j = 0; j < nr_stars; j++)
 			printf("*");
@@ -117,7 +116,7 @@ void EQUALIZE(PLACEHOLDER **data)
 
 	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i])
-			vf[i][2] = round((double) (vf[i][1] - first_value) /
+			vf[i][2] = round((double)(vf[i][1] - first_value) /
 							 (((*data)->width * (*data)->height) -
 							  first_value) *
 							 (*data)->scale);
@@ -149,24 +148,26 @@ void CROP(PLACEHOLDER **data)
 		new_image->grayscale = calloc((*data)->y2 - (*data)->y1, sizeof(int *));
 
 		for (i = (*data)->y1; i < (*data)->y2; i++) {
-
-			new_image->grayscale[i - (*data)->y1] = calloc(
-					(*data)->x2 - (*data)->x1, sizeof(int));
-			if (new_image->grayscale[i - (*data)->y1] == NULL) {
+			int new_width = (*data)->x2 - (*data)->x1;
+			new_image->grayscale[i - (*data)->y1] = calloc(new_width,
+														   sizeof(int));
+			if (!new_image->grayscale[i - (*data)->y1]) {
 				printf("Error allocating memory\n");
 				return;
 			}
 
-			for (j = (*data)->x1; j < (*data)->x2; j++)
-				new_image->grayscale[i - (*data)->y1][j - (*data)->x1]
-						= (*data)->image->grayscale[i][j];
+			for (j = (*data)->x1; j < (*data)->x2; j++) {
+				new_image->grayscale[i - (*data)->y1][j - (*data)->x1] =
+						(*data)->image->grayscale[i][j];
+			}
 		}
 	} else {
 		new_image->color = calloc((*data)->y2 - (*data)->y1,
 								  sizeof(int **));
 		for (i = (*data)->y1; i < (*data)->y2; i++) {
-			new_image->color[i - (*data)->y1] = calloc(
-					(*data)->x2 - (*data)->x1, sizeof(int *));
+			int new_width = (*data)->x2 - (*data)->x1;
+			new_image->color[i - (*data)->y1] = calloc(new_width,
+													   sizeof(int *));
 			for (j = (*data)->x1; j < (*data)->x2; j++) {
 				new_image->color[i - (*data)->y1][j - (*data)->x1] = calloc(3,
 																			sizeof(int));
@@ -208,21 +209,21 @@ void APPLY(PLACEHOLDER **data, char *parameter)
 
 	int kernel[3][3];
 	if (strcmp(parameter, "EDGE") == 0) {
-		if (is_Chaplin(*data) == 1)
+		if (is_chaplin(*data) == 1)
 			return;
 		EDGE(kernel);
 		APPLY_UTIL(1, kernel, data);
 		printf("APPLY EDGE done\n");
 
 	} else if (strcmp(parameter, "SHARPEN") == 0) {
-		if (is_Chaplin(*data) == 1)
+		if (is_chaplin(*data) == 1)
 			return;
 		SHARPEN(kernel);
 		APPLY_UTIL(1, kernel, data);
 		printf("APPLY SHARPEN done\n");
 
 	} else if (strcmp(parameter, "BLUR") == 0) {
-		if (is_Chaplin(*data) == 1)
+		if (is_chaplin(*data) == 1)
 			return;
 		int coef = 9;
 		BLUR(kernel);
@@ -230,7 +231,7 @@ void APPLY(PLACEHOLDER **data, char *parameter)
 		printf("APPLY BLUR done\n");
 
 	} else if (strcmp(parameter, "GAUSSIAN_BLUR") == 0) {
-		if (is_Chaplin(*data) == 1)
+		if (is_chaplin(*data) == 1)
 			return;
 		int coef = 16;
 		GAUSSIAN_BLUR(kernel);
@@ -294,13 +295,13 @@ int save_binary(PLACEHOLDER *data, char *filename)
 	if (data->magic_word == 2) {
 		for (i = 0; i < data->height; i++)
 			for (j = 0; j < data->width; j++)
-				fwrite(&(data->image->grayscale[i][j]), 1, 1, f);
+				fwrite(&data->image->grayscale[i][j], 1, 1, f);
 
 	} else if (data->magic_word == 3) {
 		for (i = 0; i < data->height; i++)
 			for (j = 0; j < data->width; j++)
 				for (k = 0; k < 3; k++)
-					fwrite(&(data->image->color[i][j][k]), 1, 1, f);
+					fwrite(&data->image->color[i][j][k], 1, 1, f);
 	}
 	fclose(f);
 	return 0;

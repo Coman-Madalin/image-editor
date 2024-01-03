@@ -3,7 +3,7 @@
 int is_loaded(PLACEHOLDER *data, int option)
 {
 	if (data->magic_word == -1) {
-		if(option == 1)
+		if (option == 1)
 			printf("No image loaded\n");
 		return 0;
 	}
@@ -26,7 +26,7 @@ void clamp_double(double *value, int min, int max)
 		*value = max;
 }
 
-int is_Chaplin(PLACEHOLDER *data)
+int is_chaplin(PLACEHOLDER *data)
 {
 	if (data->magic_word == 2) {
 		printf("Easy, Charlie Chaplin\n");
@@ -128,17 +128,16 @@ void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
 			calculate_sum(&sum1, 1, i, j, coef, kernel, (*data)->image->color);
 			calculate_sum(&sum2, 2, i, j, coef, kernel, (*data)->image->color);
 
-			new_image->color[i][j][0] = (int) sum0;
-			new_image->color[i][j][1] = (int) sum1;
-			new_image->color[i][j][2] = (int) sum2;
+			new_image->color[i][j][0] = (int)sum0;
+			new_image->color[i][j][1] = (int)sum1;
+			new_image->color[i][j][2] = (int)sum2;
 		}
 	}
 
 	// Free the old image
 	for (i = 0; i < (*data)->height; i++) {
-		for (j = 0; j < (*data)->width; j++) {
+		for (j = 0; j < (*data)->width; j++)
 			free((*data)->image->color[i][j]);
-		}
 		free((*data)->image->color[i]);
 	}
 	free((*data)->image->color);

@@ -8,14 +8,14 @@ void PRELOAD(PLACEHOLDER **data, char *token)
 
 void PRESELECT(PLACEHOLDER **data, char *token)
 {
-	int i, is_all = 0;;
+	int i, is_all = 0;
 	int x1, y1, x2, y2;
 	char *is_word;
 	if (is_loaded(*data, 1) == 0)
 		return;
 	for (i = 0; i < 4; i++) {
 		token = strtok(NULL, "\n ");
-		if (token == NULL) {
+		if (!token) {
 			printf("Invalid command\n");
 			return;
 		}
@@ -50,11 +50,11 @@ void PREHISTOGRAM(PLACEHOLDER *data, char *token)
 {
 	int i;
 	int bins, stars;
-	if(is_loaded(data, 1) == 0)
+	if (is_loaded(data, 1) == 0)
 		return;
 	for (i = 0; i < 2; i++) {
-		token = strtok(NULL, " \n");
-		if (token == NULL) {
+		token = strtok(NULL, "\n ");
+		if (!token) {
 			printf("Invalid command\n");
 			return;
 		}
@@ -63,24 +63,24 @@ void PREHISTOGRAM(PLACEHOLDER *data, char *token)
 		else
 			bins = strtol(token, NULL, 10);
 	}
-	token = strtok(NULL, " \n");
-	if(token != NULL)
+	token = strtok(NULL, "\n ");
+	if (token)
 		printf("Invalid command\n");
 	else
-	HISTOGRAM(data, bins, stars);
+		HISTOGRAM(data, bins, stars);
 }
 
 void PREAPPLY(PLACEHOLDER **data, char *token)
 {
-	token = strtok(NULL, " \n");
+	token = strtok(NULL, "\n ");
 	APPLY(data, token);
 }
 
 void PRESAVE(PLACEHOLDER *data, char *token)
 {
-	token = strtok(NULL, " \n");
+	token = strtok(NULL, "\n ");
 	char *file_name = token;
-	token = strtok(NULL, " \n");
+	token = strtok(NULL, "\n ");
 	SAVE(data, file_name, token);
 }
 
