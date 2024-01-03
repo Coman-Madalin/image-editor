@@ -55,7 +55,6 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 	}
 
 	int vf[256] = {0};
-
 	int i, j;
 
 	for (i = data->y1; i < data->y2; i++)
@@ -85,7 +84,7 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 	}
 
 	for (i = 0; i < bins; i++) {
-		int nr_stars = (int) ((double) bin[i] / max_freq * max_stars);
+		int nr_stars = trunc((double) bin[i] * max_stars / max_freq);
 		printf("%d\t|\t", nr_stars);
 		for (j = 0; j < nr_stars; j++)
 			printf("*");
@@ -282,9 +281,9 @@ int save_ascii(PLACEHOLDER *data, char *filename)
 	return 0;
 }
 
-int save_binary(PLACEHOLDER *data, char *token)
+int save_binary(PLACEHOLDER *data, char *filename)
 {
-	FILE *f = fopen(token, "wb");
+	FILE *f = fopen(filename, "wb");
 	if (!f) {
 		printf("Error opening file\n");
 		return 1;

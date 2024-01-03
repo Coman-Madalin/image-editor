@@ -134,8 +134,7 @@ void read_p3(PLACEHOLDER **data, FILE *fptr, int first_element)
 		(*data)->image->color[i] = calloc((*data)->width, sizeof(int *));
 		for (j = 0; j < (*data)->width; j++) {
 			(*data)->image->color[i][j] = calloc(3, sizeof(int));
-			for (k = 0; k < 3; k++)
-			{
+			for (k = 0; k < 3; k++) {
 				int value;
 				fscanf(fptr, "%d", &value);
 				clamp(&value, 0, (*data)->scale);

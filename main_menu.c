@@ -59,9 +59,9 @@ void PREHISTOGRAM(PLACEHOLDER *data, char *token)
 			return;
 		}
 		if (i == 0)
-			bins = strtol(token, NULL, 10);
-		else
 			stars = strtol(token, NULL, 10);
+		else
+			bins = strtol(token, NULL, 10);
 	}
 	token = strtok(NULL, " \n");
 	if(token != NULL)
