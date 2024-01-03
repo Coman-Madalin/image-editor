@@ -61,20 +61,14 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 		for (j = data->x1; j < data->x2; j++) {
 			int value = data->image->grayscale[i][j];
 			vf[value]++;
-			if (vf[value] == 1)
-				nr_values++;
 		}
 
 	int *bin = calloc(bins, sizeof(int));
-	int values_per_bin = nr_values / bins;
+	int values_per_bin = (data->scale + 1) / bins;
 
-	int count = 0;
 	for (i = 0; i <= data->scale; i++) {
-		if (vf[i] == 0)
-			continue;
-		int index = count / values_per_bin;
+		int index = i / values_per_bin;
 		bin[index] += vf[i];
-		count++;
 	}
 
 	int max_freq = 0;
