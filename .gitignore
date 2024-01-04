@@ -3,8 +3,3 @@ cmake-build-debug/
 .checkpatch-camelcase.git.
 **/*.out
 **/*.valgrind
-P1.pbm
-P2.pgm
-P3.ppm
-EQ_EX
-EX
