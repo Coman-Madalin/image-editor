@@ -5,6 +5,8 @@
 
 int is_loaded(PLACEHOLDER *data, int option);
 
+int is_square(PLACEHOLDER *data);
+
 void clamp(int *value, int min, int max);
 
 int is_chaplin(PLACEHOLDER *data);

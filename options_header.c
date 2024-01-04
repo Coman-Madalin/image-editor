@@ -83,6 +83,7 @@ void HISTOGRAM(PLACEHOLDER *data, int bins, int max_stars)
 			printf("*");
 		printf("\n");
 	}
+	free(bin);
 }
 
 void EQUALIZE(PLACEHOLDER **data)
@@ -130,6 +131,216 @@ void EQUALIZE(PLACEHOLDER **data)
 	printf("Equalize done\n");
 }
 
+void ROTATE_ALL(PLACEHOLDER **data, int angle)
+{
+	int new_width, new_height;
+	switch (angle) {
+	case 90:
+		new_width = (*data)->height;
+		new_height = (*data)->width;
+		break;
+	case 180:
+		new_width = (*data)->width;
+		new_height = (*data)->height;
+		break;
+	case 270:
+		new_width = (*data)->height;
+		new_height = (*data)->width;
+		break;
+	default:
+		printf(" Unsupported rotation angle\n");
+		return;
+	}
+
+	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
+	int i, j;
+	if ((*data)->magic_word == 2) {
+		new_image->grayscale = calloc(new_height, sizeof(int *));
+		for (i = 0; i < new_height; i++) {
+			new_image->grayscale[i] = calloc(new_width, sizeof(int));
+			for (j = 0; j < new_width; j++) {
+				if (angle == 90)
+					new_image->grayscale[i][j] = (*data)->image->grayscale[
+							new_width - j - 1][i];
+				else if (angle == 180)
+					new_image->grayscale[i][j] = (*data)->image->grayscale[
+							new_height - i - 1][new_width - j - 1];
+				else
+					new_image->grayscale[i][j] = (*data)->image->grayscale[j][
+							new_height - i - 1];
+			}
+		}
+
+		// Free old image
+		for (i = 0; i < (*data)->height; i++)
+			free((*data)->image->grayscale[i]);
+		free((*data)->image->grayscale);
+		free((*data)->image);
+		(*data)->image = new_image;
+		(*data)->width = new_width;
+		(*data)->height = new_height;
+		(*data)->x1 = 0;
+		(*data)->x2 = new_width;
+		(*data)->y1 = 0;
+		(*data)->y2 = new_height;
+		return;
+	}
+	new_image->color = calloc(new_height, sizeof(int **));
+	for (i = 0; i < new_height; i++) {
+		new_image->color[i] = calloc(new_width, sizeof(int *));
+		for (j = 0; j < new_width; j++) {
+			new_image->color[i][j] = calloc(3, sizeof(int));
+			if (angle == 90) {
+				new_image->color[i][j][0] = (*data)->image->color[new_width -
+																  j - 1][i][0];
+				new_image->color[i][j][1] = (*data)->image->color[new_width -
+																  j - 1][i][1];
+				new_image->color[i][j][2] = (*data)->image->color[new_width -
+																  j - 1][i][2];
+			} else if (angle == 180) {
+				new_image->color[i][j][0] = (*data)->image->color[new_height -
+																  i - 1][
+						new_width - j - 1][0];
+				new_image->color[i][j][1] = (*data)->image->color[new_height -
+																  i - 1][
+						new_width - j - 1][1];
+				new_image->color[i][j][2] = (*data)->image->color[new_height -
+																  i - 1][
+						new_width - j - 1][2];
+			} else {
+				new_image->color[i][j][0] = (*data)->image->color[j][
+						new_height - i - 1][0];
+				new_image->color[i][j][1] = (*data)->image->color[j][
+						new_height - i - 1][1];
+				new_image->color[i][j][2] = (*data)->image->color[j][
+						new_height - i - 1][2];
+
+			}
+		}
+	}
+
+	// Free old image
+	for (i = 0; i < (*data)->height; i++) {
+		for (j = 0; j < (*data)->width; j++)
+			free((*data)->image->color[i][j]);
+		free((*data)->image->color[i]);
+	}
+	free((*data)->image->color);
+	free((*data)->image);
+	(*data)->image = new_image;
+	(*data)->width = new_width;
+	(*data)->height = new_height;
+	(*data)->x1 = 0;
+	(*data)->x2 = new_width;
+	(*data)->y1 = 0;
+	(*data)->y2 = new_height;
+}
+
+void ROTATE(PLACEHOLDER **data, int angle) // in-place
+{
+	if (is_loaded(*data, 1) == 0)
+		return;
+	int square = is_square(*data);
+	if (square == 0)
+		return;
+
+	int positive_angle = angle;
+	if (angle < 0)
+		positive_angle = 360 + angle;
+	if (positive_angle == 0 || positive_angle == 360) {
+		printf("Rotated %d\n", angle);
+		return;
+	}
+
+	if (positive_angle % 90 != 0 || positive_angle > 270 ||
+		positive_angle < 0) {
+		printf("Unsupported rotation angle\n");
+		return;
+	}
+	if (square == 2) {
+		ROTATE_ALL(data, positive_angle);
+		printf("Rotated %d\n", angle);
+		return;
+	}
+
+	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
+	int i, j;
+
+	if ((*data)->magic_word == 2) {
+		new_image->grayscale = calloc((*data)->height, sizeof(int *));
+		for (i = 0; i < (*data)->height; i++) {
+			new_image->grayscale[i] = calloc((*data)->width, sizeof(int));
+			for (j = 0; j < (*data)->width; j++)
+				new_image->grayscale[i][j] = (*data)->image->grayscale[i][j];
+		}
+
+		for (i = (*data)->y1; i < (*data)->y2; i++)
+			for (j = (*data)->x1; j < (*data)->x2; j++) {
+				int old_i, old_j;
+				if (positive_angle == 90) {
+					old_i = (*data)->y2 - 1 - (j - (*data)->x1);
+					old_j = (*data)->x1 + (i - (*data)->y1);
+				} else if (positive_angle == 180) {
+					old_i = (*data)->y2 - 1 - (i - (*data)->y1);
+					old_j = (*data)->x2 - 1 - (j - (*data)->x1);
+				} else {
+					old_i = (*data)->y1 + (j - (*data)->x1);
+					old_j = (*data)->x2 - 1 - (i - (*data)->y1);
+				}
+				new_image->grayscale[i][j] =
+						(*data)->image->grayscale[old_i][old_j];
+			}
+
+		// Free old image
+		for (i = 0; i < (*data)->height; i++)
+			free((*data)->image->grayscale[i]);
+		free((*data)->image->grayscale);
+		free((*data)->image);
+		(*data)->image = new_image;
+		printf("Rotated %d\n", angle);
+		return;
+	}
+	int k;
+	new_image->color = calloc((*data)->height, sizeof(int **));
+	for (i = 0; i < (*data)->height; i++) {
+		new_image->color[i] = calloc((*data)->width, sizeof(int *));
+		for (j = 0; j < (*data)->width; j++) {
+			new_image->color[i][j] = calloc(3, sizeof(int));
+			for (k = 0; k < 3; k++)
+				new_image->color[i][j][k] = (*data)->image->color[i][j][k];
+		}
+	}
+
+	for (i = (*data)->y1; i < (*data)->y2; i++)
+		for (j = (*data)->x1; j < (*data)->x2; j++) {
+			int old_i, old_j;
+			if (positive_angle == 90) {
+				old_i = (*data)->y2 - 1 - (j - (*data)->x1);
+				old_j = (*data)->x1 + (i - (*data)->y1);
+			} else if (positive_angle == 180) {
+				old_i = (*data)->y2 - 1 - (i - (*data)->y1);
+				old_j = (*data)->x2 - 1 - (j - (*data)->x1);
+			} else {
+				old_i = (*data)->y1 + (j - (*data)->x1);
+				old_j = (*data)->x2 - 1 - (i - (*data)->y1);
+			}
+			new_image->color[i][j][0] = (*data)->image->color[old_i][old_j][0];
+			new_image->color[i][j][1] = (*data)->image->color[old_i][old_j][1];
+			new_image->color[i][j][2] = (*data)->image->color[old_i][old_j][2];
+		}
+
+	// Free old image
+	for (i = 0; i < (*data)->height; i++) {
+		for (j = 0; j < (*data)->width; j++)
+			free((*data)->image->color[i][j]);
+		free((*data)->image->color[i]);
+	}
+	free((*data)->image->color);
+	free((*data)->image);
+	(*data)->image = new_image;
+	printf("Rotated %d\n", angle);
+}
+
 void CROP(PLACEHOLDER **data)
 {
 	if (is_loaded(*data, 1) == 0)
@@ -141,23 +352,26 @@ void CROP(PLACEHOLDER **data)
 		return;
 	}
 
-	int i, j;
-
 	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
+
+	int i, j;
 	if ((*data)->magic_word == 2) {
-		new_image->grayscale = calloc((*data)->y2 - (*data)->y1, sizeof(int *));
+		new_image->grayscale = calloc((*data)->y2 - (*data)->y1,
+									  sizeof(int *));
 
 		for (i = (*data)->y1; i < (*data)->y2; i++) {
 			int new_width = (*data)->x2 - (*data)->x1;
-			new_image->grayscale[i - (*data)->y1] = calloc(new_width,
-														   sizeof(int));
+			new_image->grayscale[i - (*data)->y1] = calloc(
+					new_width,
+					sizeof(int));
 			if (!new_image->grayscale[i - (*data)->y1]) {
 				printf("Error allocating memory\n");
 				return;
 			}
 
 			for (j = (*data)->x1; j < (*data)->x2; j++) {
-				new_image->grayscale[i - (*data)->y1][j - (*data)->x1] =
+				new_image->grayscale[i - (*data)->y1][j -
+													  (*data)->x1] =
 						(*data)->image->grayscale[i][j];
 			}
 		}
@@ -166,11 +380,14 @@ void CROP(PLACEHOLDER **data)
 								  sizeof(int **));
 		for (i = (*data)->y1; i < (*data)->y2; i++) {
 			int new_width = (*data)->x2 - (*data)->x1;
-			new_image->color[i - (*data)->y1] = calloc(new_width,
-													   sizeof(int *));
+			new_image->color[i - (*data)->y1] = calloc(
+					new_width,
+					sizeof(int *));
 			for (j = (*data)->x1; j < (*data)->x2; j++) {
-				new_image->color[i - (*data)->y1][j - (*data)->x1] = calloc(3,
-																			sizeof(int));
+				new_image->color[i - (*data)->y1][j -
+												  (*data)->x1] = calloc(
+						3,
+						sizeof(int));
 				new_image->color[i - (*data)->y1][j -
 												  (*data)->x1][0] = (*data)->image->color[i][j][0];
 				new_image->color[i - (*data)->y1][j -
@@ -180,6 +397,21 @@ void CROP(PLACEHOLDER **data)
 			}
 		}
 	}
+
+	// Free old image
+	if ((*data)->magic_word == 2) {
+		for (i = 0; i < (*data)->height; i++)
+			free((*data)->image->grayscale[i]);
+		free((*data)->image->grayscale);
+	} else {
+		for (i = 0; i < (*data)->height; i++) {
+			for (j = 0; j < (*data)->width; j++)
+				free((*data)->image->color[i][j]);
+			free((*data)->image->color[i]);
+		}
+		free((*data)->image->color);
+	}
+	free((*data)->image);
 
 	(*data)->image = new_image;
 	(*data)->width = (*data)->x2 - (*data)->x1;
@@ -202,37 +434,29 @@ void APPLY(PLACEHOLDER **data, char *parameter)
 			return;
 		}
 	}
-
-	if (is_loaded(*data, 1) == 0) {
+	if (is_loaded(*data, 1) == 0)
 		return;
-	}
+	if (is_chaplin(*data) == 1)
+		return;
 
 	int kernel[3][3];
 	if (strcmp(parameter, "EDGE") == 0) {
-		if (is_chaplin(*data) == 1)
-			return;
 		EDGE(kernel);
 		APPLY_UTIL(1, kernel, data);
 		printf("APPLY EDGE done\n");
 
 	} else if (strcmp(parameter, "SHARPEN") == 0) {
-		if (is_chaplin(*data) == 1)
-			return;
 		SHARPEN(kernel);
 		APPLY_UTIL(1, kernel, data);
 		printf("APPLY SHARPEN done\n");
 
 	} else if (strcmp(parameter, "BLUR") == 0) {
-		if (is_chaplin(*data) == 1)
-			return;
 		int coef = 9;
 		BLUR(kernel);
 		APPLY_UTIL(coef, kernel, data);
 		printf("APPLY BLUR done\n");
 
 	} else if (strcmp(parameter, "GAUSSIAN_BLUR") == 0) {
-		if (is_chaplin(*data) == 1)
-			return;
 		int coef = 16;
 		GAUSSIAN_BLUR(kernel);
 		APPLY_UTIL(coef, kernel, data);
@@ -266,7 +490,8 @@ int save_ascii(PLACEHOLDER *data, char *filename)
 	} else if (data->magic_word == 3) {
 		for (i = 0; i < data->height; i++) {
 			for (j = 0; j < data->width; j++)
-				fprintf(f, "%d %d %d ", data->image->color[i][j][0],
+				fprintf(f, "%d %d %d ",
+						data->image->color[i][j][0],
 						data->image->color[i][j][1],
 						data->image->color[i][j][2]);
 			fprintf(f, "\n");
@@ -301,13 +526,13 @@ int save_binary(PLACEHOLDER *data, char *filename)
 		for (i = 0; i < data->height; i++)
 			for (j = 0; j < data->width; j++)
 				for (k = 0; k < 3; k++)
-					fwrite(&data->image->color[i][j][k], 1, 1, f);
+					fwrite(&data->image->color[i][j][k], 1, 1,
+						   f);
 	}
 	fclose(f);
 	return 0;
 }
 
-/**** DELETE everything related with binary save and will score 54.5/100 ****/
 void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
 {
 	if (is_loaded(data, 1) == 0)
@@ -325,4 +550,25 @@ void SAVE(PLACEHOLDER *data, char *filename, char *ascii)
 		printf("Invalid command\n");
 		return;
 	}
+}
+
+void EXIT(PLACEHOLDER **data)
+{
+	// Erase everything that remains
+	if ((*data)->magic_word == 2) {
+		int i;
+		for (i = 0; i < (*data)->height; i++)
+			free((*data)->image->grayscale[i]);
+		free((*data)->image->grayscale);
+	} else if ((*data)->magic_word == 3) {
+		int i, j;
+		for (i = 0; i < (*data)->height; i++) {
+			for (j = 0; j < (*data)->width; j++)
+				free((*data)->image->color[i][j]);
+			free((*data)->image->color[i]);
+		}
+		free((*data)->image->color);
+	}
+	free((*data)->image);
+	free(*data);
 }

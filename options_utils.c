@@ -10,6 +10,17 @@ int is_loaded(PLACEHOLDER *data, int option)
 	return 1;
 }
 
+int is_square(PLACEHOLDER *data)
+{
+	if (data->x1 == 0 && data->x2 == data->width)
+		if (data->y1 == 0 && data->y2 == data->height)
+			return 2;
+	if (data->x2 - data->x1 == data->y2 - data->y1)
+		return 1;
+	printf("The selection must be a square\n");
+	return 0;
+}
+
 void clamp(int *value, int min, int max)
 {
 	if (*value < min)

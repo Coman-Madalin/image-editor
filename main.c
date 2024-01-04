@@ -87,6 +87,8 @@ int main(void)
 			PREHISTOGRAM(data, token);
 		else if (strcmp(token, "EQUALIZE") == 0)
 			EQUALIZE(&data);
+		else if (strcmp(token, "ROTATE") == 0)
+			PREROTATE(&data, token);
 		else if (strcmp(token, "CROP") == 0)
 			CROP(&data);
 		else if (strcmp(token, "APPLY") == 0)
@@ -101,13 +103,10 @@ int main(void)
 			if (any_off_limits(data) == 0)
 				printf("OK\n");
 		} else if (strcmp(command, "EXIT") == 0) {
-			if (PREEXIT(&data) == 1)
-				return 0;
-		} else if (strcmp(command, "ascii") == 0)
-			continue;
-		else {
+			PREEXIT(&data);
+			return 0;
+		} else {
 			printf("Invalid command\n");
 		}
 	}
-	return 0;
 }

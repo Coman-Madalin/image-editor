@@ -9,12 +9,14 @@ void PRELOAD(PLACEHOLDER **data, char *token);
 
 void PRESELECT(PLACEHOLDER **data, char *token);
 
+void PREROTATE(PLACEHOLDER **data, char *token);
+
 void PREHISTOGRAM(PLACEHOLDER *data, char *token);
 
 void PREAPPLY(PLACEHOLDER **data, char *token);
 
 void PRESAVE(PLACEHOLDER *data, char *token);
 
-int PREEXIT(PLACEHOLDER **data);
+void PREEXIT(PLACEHOLDER **data);
 
 #endif

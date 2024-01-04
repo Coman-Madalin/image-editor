@@ -4,10 +4,6 @@
 
 void LOAD(PLACEHOLDER **data, char *file_name)
 {
-	free(*data);
-	(*data) = calloc(1, sizeof(PLACEHOLDER));
-	(*data)->magic_word = -1;
-
 	FILE *fptr = NULL;
 	fptr = fopen(file_name, "r");
 	if (!fptr) {
@@ -44,7 +40,6 @@ void LOAD(PLACEHOLDER **data, char *file_name)
 		printf("Loaded %s\n", file_name);
 
 	} else {
-		free(*data);
 		(*data) = calloc(1, sizeof(PLACEHOLDER));
 		(*data)->magic_word = -1;
 		printf("Failed to load %s\n", file_name);
@@ -179,10 +174,6 @@ void read_p6(PLACEHOLDER **data, FILE *fptr, int first_element)
 					(*data)->image->color[i][j][k] = value;
 				}
 		}
-		//printf("\n\n!!!!I:%d J:59!!!!", i);
-		//printf("%d %d %d\n\n", (*data)->image->color[i][59][0],
-		//	   (*data)->image->color[i][59][1],
-		//	   (*data)->image->color[i][59][2]);
 	}
 	(*data)->image->color[0][0][0] = first_element;
 }
