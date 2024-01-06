@@ -3,16 +3,19 @@ project(Tema3 C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(Tema3 main.c
+add_executable(Tema3 image_editor.c
+        structure.h
+        main_menu.c
+        main_menu.h
+        commands.c
+        commands.h
+        checks.c
+        checks.h
         read_utils.c
         read_utils.h
-        options_header.c
-        options_header.h
-        structure_header.h
-        options_utils.c
-        options_utils.h
-        main_menu.c
-        main_menu.h)
+        apply_utils.c
+        apply_utils.h
+)
 
 target_link_libraries(Tema3 -lm)
 

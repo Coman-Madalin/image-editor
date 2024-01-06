@@ -1,27 +1,6 @@
-#include "options_utils.h"
+#include "apply_utils.h"
 
-int is_loaded(PLACEHOLDER *data, int option)
-{
-	if (data->magic_word == -1) {
-		if (option == 1)
-			printf("No image loaded\n");
-		return 0;
-	}
-	return 1;
-}
-
-int is_square(PLACEHOLDER *data)
-{
-	if (data->x1 == 0 && data->x2 == data->width)
-		if (data->y1 == 0 && data->y2 == data->height)
-			return 2;
-	if (data->x2 - data->x1 == data->y2 - data->y1)
-		return 1;
-	printf("The selection must be a square\n");
-	return 0;
-}
-
-void clamp(int *value, int min, int max)
+void clamp(double *value, int min, int max)
 {
 	if (*value < min)
 		*value = min;
@@ -29,25 +8,9 @@ void clamp(int *value, int min, int max)
 		*value = max;
 }
 
-void clamp_double(double *value, int min, int max)
+void EDGE(int kernel[3][3], int *coefficient)
 {
-	if (*value < min)
-		*value = min;
-	if (*value > max)
-		*value = max;
-}
-
-int is_chaplin(PLACEHOLDER *data)
-{
-	if (data->magic_word == 2) {
-		printf("Easy, Charlie Chaplin\n");
-		return 1;
-	}
-	return 0;
-}
-
-void EDGE(int kernel[3][3])
-{
+	*coefficient = 1;
 	kernel[0][0] = -1;
 	kernel[0][1] = -1;
 	kernel[0][2] = -1;
@@ -59,8 +22,9 @@ void EDGE(int kernel[3][3])
 	kernel[2][2] = -1;
 }
 
-void SHARPEN(int kernel[3][3])
+void SHARPEN(int kernel[3][3], int *coefficient)
 {
+	*coefficient = 1;
 	kernel[0][0] = 0;
 	kernel[0][1] = -1;
 	kernel[0][2] = 0;
@@ -72,8 +36,9 @@ void SHARPEN(int kernel[3][3])
 	kernel[2][2] = 0;
 }
 
-void BLUR(int kernel[3][3])
+void BLUR(int kernel[3][3], int *coefficient)
 {
+	*coefficient = 9;
 	kernel[0][0] = 1;
 	kernel[0][1] = 1;
 	kernel[0][2] = 1;
@@ -85,8 +50,9 @@ void BLUR(int kernel[3][3])
 	kernel[2][2] = 1;
 }
 
-void GAUSSIAN_BLUR(int kernel[3][3])
+void GAUSSIAN_BLUR(int kernel[3][3], int *coefficient)
 {
+	*coefficient = 16;
 	kernel[0][0] = 1;
 	kernel[0][1] = 2;
 	kernel[0][2] = 1;
@@ -98,7 +64,7 @@ void GAUSSIAN_BLUR(int kernel[3][3])
 	kernel[2][2] = 1;
 }
 
-void calculate_sum(double *sum, int which, int i, int j, int coef,
+void calculate_sum(double *sum, int which, int i, int j, int coefficient,
 				   int kernel[3][3], int ***color)
 {
 	*sum += (color[i - 1][j - 1][which] * kernel[0][0]);
@@ -110,14 +76,21 @@ void calculate_sum(double *sum, int which, int i, int j, int coef,
 	*sum += (color[i + 1][j - 1][which] * kernel[2][0]);
 	*sum += (color[i + 1][j][which] * kernel[2][1]);
 	*sum += (color[i + 1][j + 1][which] * kernel[2][2]);
-	*sum /= coef;
-	clamp_double(sum, 0, 255);
+	*sum /= coefficient;
+	clamp(sum, 0, 255);
 }
 
-void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
+void APPLY_UTIL(int coefficient, int kernel[3][3], PLACEHOLDER_t **data)
 {
+	// I created a new image because if we modify the old one in place, we would
+	// use the modified pixels in the calculations for the next pixels, which
+	// would lead to incorrect results.
+	ACTUAL_IMAGE_t *new_image = calloc(1, sizeof(ACTUAL_IMAGE_t));
+	// Another solution to that problem would be to use a temporary image the
+	// size of the selected area, apply the filter over it, and then copy the
+	// values back. This would be more efficient, but I decided to go with
+	// the first solution because it is more readable.
 	int i, j, k;
-	ACTUAL_IMAGE *new_image = calloc(1, sizeof(ACTUAL_IMAGE));
 	new_image->color = calloc((*data)->height, sizeof(int **));
 	for (i = 0; i < (*data)->height; i++) {
 		new_image->color[i] = calloc((*data)->width, sizeof(int *));
@@ -134,14 +107,12 @@ void APPLY_UTIL(int coef, int kernel[3][3], PLACEHOLDER **data)
 		for (j = (*data)->x1; j < (*data)->x2; j++) {
 			if (j == 0 || j == (*data)->width - 1)
 				continue;
-			double sum0 = 0, sum1 = 0, sum2 = 0;
-			calculate_sum(&sum0, 0, i, j, coef, kernel, (*data)->image->color);
-			calculate_sum(&sum1, 1, i, j, coef, kernel, (*data)->image->color);
-			calculate_sum(&sum2, 2, i, j, coef, kernel, (*data)->image->color);
-
-			new_image->color[i][j][0] = (int)sum0;
-			new_image->color[i][j][1] = (int)sum1;
-			new_image->color[i][j][2] = (int)sum2;
+			for (k = 0; k < 3; k++) {
+				double sum = 0;
+				calculate_sum(&sum, k, i, j,
+							  coefficient, kernel, (*data)->image->color);
+				new_image->color[i][j][k] = (int)sum;
+			}
 		}
 	}
 

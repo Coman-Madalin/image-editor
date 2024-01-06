@@ -1,16 +1,15 @@
 #include "main_menu.h"
 
-void PRELOAD(PLACEHOLDER **data, char *token)
+void PRELOAD(PLACEHOLDER_t **data, char *parameters)
 {
-	token = strtok(NULL, "\n ");
-	if (!token) {
+	parameters = strtok(NULL, "\n ");
+	if (!parameters) {
 		printf("Invalid command\n");
 		return;
 	}
 
 	// Free the memory allocated for the previous image
-	if((*data)->magic_word != -1)
-	{
+	if ((*data)->magic_word != -1) {
 		if ((*data)->magic_word == 2) {
 			int i;
 			for (i = 0; i < (*data)->height; i++)
@@ -27,34 +26,31 @@ void PRELOAD(PLACEHOLDER **data, char *token)
 		}
 		free((*data)->image);
 		(*data)->magic_word = -1;
-		(*data)->height = 0;
-		(*data)->width = 0;
-		(*data)->scale = 0;
-		(*data)->x1 = 0;
-		(*data)->y1 = 0;
-		(*data)->x2 = 0;
-		(*data)->y2 = 0;
+		(*data)->height = (*data)->width = (*data)->scale = 0;
+		(*data)->x1 = (*data)->y1 = (*data)->x2 = (*data)->y2 = 0;
 	}
 
-	LOAD(data, token);
+	LOAD(data, parameters);
 }
 
-void PRESELECT(PLACEHOLDER **data, char *token)
+void PRESELECT(PLACEHOLDER_t **data, char *parameters)
 {
-	if (is_loaded(*data, 1) == 0)
+	if (is_loaded(*data) == 0)
 		return;
 
 	int i, is_all = 0;
 	int x1, y1, x2, y2;
 	char *is_word = NULL;
 	for (i = 0; i < 4; i++) {
-		token = strtok(NULL, "\n ");
-		if (!token) {
+		parameters = strtok(NULL, "\n ");
+		if (!parameters) {
 			printf("Invalid command\n");
 			return;
 		}
 		if (i == 0) {
-			if (strncmp(token, "ALL", 3) == 0) {
+			if (strncmp(parameters, "ALL", 3) != 0) {
+				x1 = strtol(parameters, &is_word, 10);
+			} else {
 				(*data)->x1 = 0;
 				(*data)->y1 = 0;
 				(*data)->x2 = (*data)->width;
@@ -62,16 +58,15 @@ void PRESELECT(PLACEHOLDER **data, char *token)
 				printf("Selected ALL\n");
 				is_all = 1;
 				break;
-			} else
-				x1 = strtol(token, &is_word, 10);
-		} else if (i == 1)
-			y1 = strtol(token, &is_word, 10);
-		else if (i == 2)
-			x2 = strtol(token, &is_word, 10);
-		else
-			y2 = strtol(token, &is_word, 10);
-		if (is_word == token) {
-			//free(is_word);
+			}
+		} else if (i == 1) {
+			y1 = strtol(parameters, &is_word, 10);
+		} else if (i == 2) {
+			x2 = strtol(parameters, &is_word, 10);
+		} else {
+			y2 = strtol(parameters, &is_word, 10);
+		}
+		if (is_word == parameters) {
 			printf("Invalid command\n");
 			return;
 		}
@@ -80,66 +75,68 @@ void PRESELECT(PLACEHOLDER **data, char *token)
 		SELECT(data, x1, y1, x2, y2);
 }
 
-void PREHISTOGRAM(PLACEHOLDER *data, char *token)
+void PREHISTOGRAM(PLACEHOLDER_t *data, char *parameters)
 {
+	if (is_loaded(data) == 0)
+		return;
+
 	int i;
 	int bins, stars;
-	if (is_loaded(data, 1) == 0)
-		return;
 	for (i = 0; i < 2; i++) {
-		token = strtok(NULL, "\n ");
-		if (!token) {
+		parameters = strtok(NULL, "\n ");
+		if (!parameters) {
 			printf("Invalid command\n");
 			return;
 		}
+
 		if (i == 0)
-			stars = strtol(token, NULL, 10);
+			stars = strtol(parameters, NULL, 10);
 		else
-			bins = strtol(token, NULL, 10);
+			bins = strtol(parameters, NULL, 10);
 	}
-	token = strtok(NULL, "\n ");
-	if (token)
+	parameters = strtok(NULL, "\n ");
+	if (parameters)
 		printf("Invalid command\n");
 	else
 		HISTOGRAM(data, bins, stars);
 }
 
-void PREAPPLY(PLACEHOLDER **data, char *token)
+void PREROTATE(PLACEHOLDER_t **data, char *parameters)
 {
-	token = strtok(NULL, "\n ");
-	APPLY(data, token);
-}
-
-void PREROTATE(PLACEHOLDER **data, char *token)
-{
-	if (is_loaded(*data, 1) == 0)
+	if (is_loaded(*data) == 0)
 		return;
 
 	int angle;
-	token = strtok(NULL, "\n ");
-	if (!token) {
+	parameters = strtok(NULL, "\n ");
+	if (!parameters) {
 		printf("Invalid command\n");
 		return;
 	}
-	angle = strtol(token, NULL, 10);
-	token = strtok(NULL, "\n ");
-	if (token)
+	angle = strtol(parameters, NULL, 10);
+	parameters = strtok(NULL, "\n ");
+	if (parameters)
 		printf("Invalid command\n");
 	else
 		ROTATE(data, angle);
 }
 
-void PRESAVE(PLACEHOLDER *data, char *token)
+void PREAPPLY(PLACEHOLDER_t **data, char *parameters)
 {
-	token = strtok(NULL, "\n ");
-	char *file_name = token;
-	token = strtok(NULL, "\n ");
-	SAVE(data, file_name, token);
+	parameters = strtok(NULL, "\n ");
+	APPLY(data, parameters);
 }
 
-void PREEXIT(PLACEHOLDER **data)
+void PRESAVE(PLACEHOLDER_t *data, char *parameters)
 {
-	if(is_loaded(*data, 1) == 0) {
+	parameters = strtok(NULL, "\n ");
+	char *file_name = parameters;
+	parameters = strtok(NULL, "\n ");
+	SAVE(data, file_name, parameters);
+}
+
+void PREEXIT(PLACEHOLDER_t **data)
+{
+	if (is_loaded(*data) == 0) {
 		free(*data);
 		return;
 	}

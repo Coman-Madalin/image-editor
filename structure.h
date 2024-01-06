@@ -9,15 +9,15 @@
 typedef union {
 	int **grayscale;
 	int ***color;
-} ACTUAL_IMAGE;
+} ACTUAL_IMAGE_t;
 
 typedef struct {
-	ACTUAL_IMAGE *image;
+	ACTUAL_IMAGE_t *image;
 	int magic_word;
 	int scale;
 	int width;
 	int height;
 	int x1, x2, y1, y2;
-} PLACEHOLDER;
+} PLACEHOLDER_t;
 
 #endif
