@@ -1,6 +1,11 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "checks.h"
 
-int is_loaded(PLACEHOLDER_t *data)
+int is_loaded(DATA_t *data)
 {
 	if (data->magic_word == -1) {
 		printf("No image loaded\n");
@@ -9,7 +14,7 @@ int is_loaded(PLACEHOLDER_t *data)
 	return 1;
 }
 
-int is_square(PLACEHOLDER_t *data)
+int is_square(DATA_t *data)
 {
 	if (data->x1 == 0 && data->x2 == data->width)
 		if (data->y1 == 0 && data->y2 == data->height)
@@ -20,7 +25,7 @@ int is_square(PLACEHOLDER_t *data)
 	return 0;
 }
 
-int is_chaplin(PLACEHOLDER_t *data)
+int is_chaplin(DATA_t *data)
 {
 	if (data->magic_word == 2) {
 		printf("Easy, Charlie Chaplin\n");

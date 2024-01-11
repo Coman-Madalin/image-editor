@@ -1,3 +1,8 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "apply_utils.h"
 
 void clamp(double *value, int min, int max)
@@ -65,7 +70,7 @@ void GAUSSIAN_BLUR(int kernel[3][3], int *coefficient)
 }
 
 void calculate_sum(double *sum, int which, int i, int j, int coefficient,
-				   int kernel[3][3], int ***color)
+				   int kernel[3][3], unsigned short int ***color)
 {
 	*sum += (color[i - 1][j - 1][which] * kernel[0][0]);
 	*sum += (color[i - 1][j][which] * kernel[0][1]);
@@ -80,7 +85,7 @@ void calculate_sum(double *sum, int which, int i, int j, int coefficient,
 	clamp(sum, 0, 255);
 }
 
-void APPLY_UTIL(int coefficient, int kernel[3][3], PLACEHOLDER_t **data)
+void APPLY_UTIL(int coefficient, int kernel[3][3], DATA_t **data)
 {
 	// I created a new image because if we modify the old one in place, we would
 	// use the modified pixels in the calculations for the next pixels, which

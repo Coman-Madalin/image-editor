@@ -1,3 +1,8 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #ifndef MAIN_MENU_H
 #define MAIN_MENU_H
 
@@ -8,18 +13,18 @@
 
 // Used to process the input from the user, get the parameters and validate them
 
-void PRELOAD(PLACEHOLDER_t **data, char *parameters);
+void PRELOAD(DATA_t **data, char *parameters);
 
-void PRESELECT(PLACEHOLDER_t **data, char *parameters);
+void PRESELECT(DATA_t **data, char *parameters);
 
-void PREHISTOGRAM(PLACEHOLDER_t *data, char *parameters);
+void PREHISTOGRAM(DATA_t *data, char *parameters);
 
-void PREROTATE(PLACEHOLDER_t **data, char *parameters);
+void PREROTATE(DATA_t **data, char *parameters);
 
-void PREAPPLY(PLACEHOLDER_t **data, char *parameters);
+void PREAPPLY(DATA_t **data, char *parameters);
 
-void PRESAVE(PLACEHOLDER_t *data, char *parameters);
+void PRESAVE(DATA_t *data, char *parameters);
 
-void PREEXIT(PLACEHOLDER_t **data);
+void PREEXIT(DATA_t **data);
 
 #endif

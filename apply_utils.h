@@ -1,3 +1,8 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #ifndef OPTIONS_UTILS_H
 #define OPTIONS_UTILS_H
 
@@ -15,7 +20,7 @@ void BLUR(int kernel[3][3], int *coefficient);
 
 void GAUSSIAN_BLUR(int kernel[3][3], int *coefficient);
 
-void APPLY_UTIL(int coefficient, int kernel[3][3], PLACEHOLDER_t **data);
+void APPLY_UTIL(int coefficient, int kernel[3][3], DATA_t **data);
 
 #endif
 

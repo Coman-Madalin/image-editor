@@ -1,26 +1,14 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "commands.h"
 
-void SELECT(PLACEHOLDER_t **data, int x1, int y1, int x2, int y2)
+void SELECT(DATA_t **data, int x1, int y1, int x2, int y2)
 {
 	if (is_loaded(*data) == 0)
 		return;
-
-	if (x1 < 0 || x1 > (*data)->width) {
-		printf("Invalid set of coordinates\n");
-		return;
-	}
-	if (y1 < 0 || y1 > (*data)->height) {
-		printf("Invalid set of coordinates\n");
-		return;
-	}
-	if (x2 < 0 || x2 > (*data)->width) {
-		printf("Invalid set of coordinates\n");
-		return;
-	}
-	if (y2 < 0 || y2 > (*data)->height) {
-		printf("Invalid set of coordinates\n");
-		return;
-	}
 
 	if (x1 == x2 || y1 == y2) {
 		printf("Invalid set of coordinates\n");
@@ -38,6 +26,23 @@ void SELECT(PLACEHOLDER_t **data, int x1, int y1, int x2, int y2)
 		y2 = aux;
 	}
 
+	if (x1 < 0) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (y1 < 0) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (x2 > (*data)->width) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+	if (y2 > (*data)->height) {
+		printf("Invalid set of coordinates\n");
+		return;
+	}
+
 	(*data)->x1 = x1;
 	(*data)->y1 = y1;
 	(*data)->x2 = x2;
@@ -46,7 +51,7 @@ void SELECT(PLACEHOLDER_t **data, int x1, int y1, int x2, int y2)
 	printf("Selected %d %d %d %d\n", x1, y1, x2, y2);
 }
 
-void HISTOGRAM(PLACEHOLDER_t *data, int bins, int max_stars)
+void HISTOGRAM(DATA_t *data, int bins, int max_stars)
 {
 	if (data->magic_word == 3) {
 		printf("Black and white image needed\n");
@@ -88,7 +93,7 @@ void HISTOGRAM(PLACEHOLDER_t *data, int bins, int max_stars)
 	free(bin);
 }
 
-void EQUALIZE(PLACEHOLDER_t **data)
+void EQUALIZE(DATA_t **data)
 {
 	if (is_loaded(*data) == 0)
 		return;
@@ -108,11 +113,11 @@ void EQUALIZE(PLACEHOLDER_t **data)
 		}
 
 	int cumulative_freq = 0;
-	int first_value;
+	int min_cdf;
 	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i]) {
 			if (cumulative_freq == 0)
-				first_value = vf[i][0];
+				min_cdf = vf[i][0];
 			cumulative_freq += vf[i][0];
 			// The second column of vf will store the cumulative frequency
 			vf[i][1] = cumulative_freq;
@@ -121,10 +126,9 @@ void EQUALIZE(PLACEHOLDER_t **data)
 	for (i = 0; i <= (*data)->scale; i++)
 		if (vf[i])
 			// The third column of vf will store the new value
-			vf[i][2] = round((double)(vf[i][1] - first_value) /
+			vf[i][2] = round((double)(vf[i][1] - min_cdf) /
 							 (((*data)->width * (*data)->height) -
-							  first_value) *
-							 (*data)->scale);
+							  min_cdf) * (*data)->scale);
 
 	for (i = 0; i < (*data)->height; i++)
 		for (j = 0; j < (*data)->width; j++) {
@@ -135,7 +139,7 @@ void EQUALIZE(PLACEHOLDER_t **data)
 	printf("Equalize done\n");
 }
 
-void ROTATE_ALL(PLACEHOLDER_t **data, int angle)
+void ROTATE_ALL(DATA_t **data, int angle)
 {
 	// Swapping width and height of the new image if needed
 	int new_width, new_height;
@@ -163,13 +167,13 @@ void ROTATE_ALL(PLACEHOLDER_t **data, int angle)
 			for (j = 0; j < new_width; j++) {
 				if (angle == 90)
 					new_image->grayscale[i][j] = (*data)->image->grayscale
-					[new_width - j - 1][i];
+					[new_width - 1 - j][i];
 				else if (angle == 180)
 					new_image->grayscale[i][j] = (*data)->image->grayscale
-					[new_height - i - 1][new_width - j - 1];
+					[new_height - 1 - i][new_width - 1 - j];
 				else
 					new_image->grayscale[i][j] = (*data)->image->grayscale[j]
-					[new_height - i - 1];
+					[new_height - 1 - i];
 			}
 		}
 
@@ -214,7 +218,7 @@ void ROTATE_ALL(PLACEHOLDER_t **data, int angle)
 	(*data)->y2 = new_height;
 }
 
-void ROTATE_ZONE(PLACEHOLDER_t **data, int angle)
+void ROTATE_ZONE(DATA_t **data, int angle)
 {
 	ACTUAL_IMAGE_t *new_image = calloc(1, sizeof(ACTUAL_IMAGE_t));
 	int i, j, k;
@@ -289,7 +293,7 @@ void ROTATE_ZONE(PLACEHOLDER_t **data, int angle)
 	(*data)->image = new_image;
 }
 
-void ROTATE(PLACEHOLDER_t **data, int angle)
+void ROTATE(DATA_t **data, int angle)
 {
 	if (is_loaded(*data) == 0)
 		return;
@@ -315,7 +319,7 @@ void ROTATE(PLACEHOLDER_t **data, int angle)
 	printf("Rotated %d\n", angle);
 }
 
-void CROP(PLACEHOLDER_t **data)
+void CROP(DATA_t **data)
 {
 	if (is_loaded(*data) == 0)
 		return;
@@ -394,7 +398,7 @@ void CROP(PLACEHOLDER_t **data)
 	printf("Image cropped\n");
 }
 
-void APPLY(PLACEHOLDER_t **data, char *parameter)
+void APPLY(DATA_t **data, char *parameter)
 {
 	if (!parameter) {
 		if (is_loaded(*data) != 0)
@@ -430,7 +434,7 @@ void APPLY(PLACEHOLDER_t **data, char *parameter)
 	APPLY_UTIL(coefficient, kernel, data);
 }
 
-int save_ascii(PLACEHOLDER_t *data, char *filename)
+int save_ascii(DATA_t *data, char *filename)
 {
 	FILE *f = fopen(filename, "w");
 	if (!f) {
@@ -462,7 +466,7 @@ int save_ascii(PLACEHOLDER_t *data, char *filename)
 	return 0;
 }
 
-int save_binary(PLACEHOLDER_t *data, char *filename)
+int save_binary(DATA_t *data, char *filename)
 {
 	FILE *f = fopen(filename, "wb");
 	if (!f) {
@@ -495,7 +499,7 @@ int save_binary(PLACEHOLDER_t *data, char *filename)
 	return 0;
 }
 
-void SAVE(PLACEHOLDER_t *data, char *filename, char *ascii)
+void SAVE(DATA_t *data, char *filename, char *ascii)
 {
 	if (is_loaded(data) == 0)
 		return;
@@ -511,7 +515,7 @@ void SAVE(PLACEHOLDER_t *data, char *filename, char *ascii)
 	}
 }
 
-void EXIT(PLACEHOLDER_t **data)
+void EXIT(DATA_t **data)
 {
 	// Erase everything from memory
 	if ((*data)->magic_word == 2) {

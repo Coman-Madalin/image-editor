@@ -1,3 +1,8 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "structure.h"
 #include "main_menu.h"
 #include "commands.h"
@@ -5,7 +10,7 @@
 int main(void)
 {
 	char command[50];
-	PLACEHOLDER_t *data = calloc(1, sizeof(PLACEHOLDER_t));
+	DATA_t *data = calloc(1, sizeof(DATA_t));
 	data->magic_word = -1;
 
 	while (1 != 0) {

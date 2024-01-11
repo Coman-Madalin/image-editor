@@ -1,6 +1,11 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "main_menu.h"
 
-void PRELOAD(PLACEHOLDER_t **data, char *parameters)
+void PRELOAD(DATA_t **data, char *parameters)
 {
 	parameters = strtok(NULL, "\n ");
 	if (!parameters) {
@@ -33,7 +38,7 @@ void PRELOAD(PLACEHOLDER_t **data, char *parameters)
 	LOAD(data, parameters);
 }
 
-void PRESELECT(PLACEHOLDER_t **data, char *parameters)
+void PRESELECT(DATA_t **data, char *parameters)
 {
 	if (is_loaded(*data) == 0)
 		return;
@@ -75,7 +80,7 @@ void PRESELECT(PLACEHOLDER_t **data, char *parameters)
 		SELECT(data, x1, y1, x2, y2);
 }
 
-void PREHISTOGRAM(PLACEHOLDER_t *data, char *parameters)
+void PREHISTOGRAM(DATA_t *data, char *parameters)
 {
 	if (is_loaded(data) == 0)
 		return;
@@ -101,7 +106,7 @@ void PREHISTOGRAM(PLACEHOLDER_t *data, char *parameters)
 		HISTOGRAM(data, bins, stars);
 }
 
-void PREROTATE(PLACEHOLDER_t **data, char *parameters)
+void PREROTATE(DATA_t **data, char *parameters)
 {
 	if (is_loaded(*data) == 0)
 		return;
@@ -120,13 +125,13 @@ void PREROTATE(PLACEHOLDER_t **data, char *parameters)
 		ROTATE(data, angle);
 }
 
-void PREAPPLY(PLACEHOLDER_t **data, char *parameters)
+void PREAPPLY(DATA_t **data, char *parameters)
 {
 	parameters = strtok(NULL, "\n ");
 	APPLY(data, parameters);
 }
 
-void PRESAVE(PLACEHOLDER_t *data, char *parameters)
+void PRESAVE(DATA_t *data, char *parameters)
 {
 	parameters = strtok(NULL, "\n ");
 	char *file_name = parameters;
@@ -134,7 +139,7 @@ void PRESAVE(PLACEHOLDER_t *data, char *parameters)
 	SAVE(data, file_name, parameters);
 }
 
-void PREEXIT(PLACEHOLDER_t **data)
+void PREEXIT(DATA_t **data)
 {
 	if (is_loaded(*data) == 0) {
 		free(*data);

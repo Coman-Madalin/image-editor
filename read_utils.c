@@ -1,6 +1,11 @@
+// Tema3 - Image Editor
+// Coman Andrei-Madalin
+// 315 CA
+// 2023-2024
+
 #include "read_utils.h"
 
-void LOAD(PLACEHOLDER_t **data, char *file_name)
+void LOAD(DATA_t **data, char *file_name)
 {
 	FILE *fptr = NULL;
 	fptr = fopen(file_name, "r");
@@ -51,14 +56,14 @@ void LOAD(PLACEHOLDER_t **data, char *file_name)
 		printf("Loaded %s\n", file_name);
 
 	} else {
-		(*data) = calloc(1, sizeof(PLACEHOLDER_t));
+		(*data) = calloc(1, sizeof(DATA_t));
 		(*data)->magic_word = -1;
 		printf("Failed to load %s\n", file_name);
 	}
 	fclose(fptr);
 }
 
-int read_common(PLACEHOLDER_t **data, FILE *fptr)
+int read_common(DATA_t **data, FILE *fptr)
 {
 	// count is used to keep track of what we currently read about the image
 	int count = 0;
@@ -87,14 +92,8 @@ int read_common(PLACEHOLDER_t **data, FILE *fptr)
 		// If we read a digit, we add it to the corresponding variable
 		switch (count) {
 		case 0:
-			if (digit == '2') {
-				(*data)->magic_word = 2;
-			} else if (digit == '3') {
-				(*data)->magic_word = 3;
-			} else if (digit == '5') {
-				(*data)->magic_word = 5;
-			} else if (digit == '6') {
-				(*data)->magic_word = 6;
+			if (digit >= '2' && digit <= '6' && digit != '4') {
+				(*data)->magic_word = digit - '0';
 			} else {
 				(*data)->magic_word = -1;
 				return -1;
@@ -122,7 +121,7 @@ int read_common(PLACEHOLDER_t **data, FILE *fptr)
 	return -1;
 }
 
-void read_p2(PLACEHOLDER_t **data, FILE *fptr, int first_element)
+void read_p2(DATA_t **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE_t));
 	(*data)->image->grayscale = calloc((*data)->height, sizeof(int *));
@@ -140,7 +139,7 @@ void read_p2(PLACEHOLDER_t **data, FILE *fptr, int first_element)
 			first_element * 10 + (*data)->image->grayscale[0][0];
 }
 
-void read_p3(PLACEHOLDER_t **data, FILE *fptr, int first_element)
+void read_p3(DATA_t **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE_t));
 	(*data)->image->color = calloc((*data)->height, sizeof(int **));
@@ -161,7 +160,7 @@ void read_p3(PLACEHOLDER_t **data, FILE *fptr, int first_element)
 			first_element * 10 + (*data)->image->color[0][0][0];
 }
 
-void read_p5(PLACEHOLDER_t **data, FILE *fptr, int first_element)
+void read_p5(DATA_t **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE_t));
 	(*data)->image->grayscale = calloc((*data)->height, sizeof(int *));
@@ -177,7 +176,7 @@ void read_p5(PLACEHOLDER_t **data, FILE *fptr, int first_element)
 	(*data)->image->grayscale[0][0] = first_element;
 }
 
-void read_p6(PLACEHOLDER_t **data, FILE *fptr, int first_element)
+void read_p6(DATA_t **data, FILE *fptr, int first_element)
 {
 	(*data)->image = calloc(1, sizeof(ACTUAL_IMAGE_t));
 	(*data)->image->color = calloc((*data)->height, sizeof(int **));
