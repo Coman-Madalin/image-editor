@@ -1,8 +1,6 @@
-##### Copyright 2024 Andrei-Madalin Coman (andrei.coman1301@stud.acs.upb.ro)
+##### Copyright 2024 Andrei-Madalin Coman (comanandreimadalin@gmail.com)
 
-# README TEMA3
-
-#### Nume: Coman Andrei-Madalin<br>Grupa: 315 CA<br>Anul: 2023-2024
+# Image Editor
 
 ## Vezi ca pagina web
 
@@ -15,15 +13,15 @@ grip  README
 ## Cuprins
 
 1. [Precizari Generale](#precizari-generale)
-2. [LOAD](#load)
-3. [SELECT](#select)
-4. [HISTOGRAM](#histogram)
-5. [EQUALIZE](#equalize)
-6. [ROTATE](#rotate)
-7. [CROP](#crop)
-8. [APPLY](#apply)
-9. [SAVE](#save)
-10. [EXIT](#exit)
+2. [Load](#load)
+3. [Select](#select)
+4. [Histogram](#histogram)
+5. [Equalize](#equalize)
+6. [Rotate](#rotate)
+7. [Crop](#crop)
+8. [Apply](#apply)
+9. [Save](#save)
+10. [Exit](#exit)
 
 ## Precizari Generale
 
@@ -43,7 +41,7 @@ Observatii:
    parametrii necesari si ii valideaza.
 2. Pentru mai multe detalii, vezi comentariile din cod.
 
-## LOAD
+## Load
 
 ### Sintaxa:
 
@@ -60,7 +58,7 @@ LOAD <fisier>
 4. Inchidem fisierul de intrare.
 ```
 
-## SELECT
+## Select
 
 ### Sintaxa:
 
@@ -84,7 +82,7 @@ SELECT ALL
 4. Daca sunt, memoram coordonatele.
 ```
 
-## HISTOGRAM
+## Histogram
 
 ### Sintaxa:
 
@@ -102,7 +100,7 @@ HISTOGRAM <x> <y>
     numar_stelute = valoare_bin * numar_stelute_max / valoare_bin_max
 ```
 
-## EQUALIZE
+## Equalize
 
 ### Sintaxa:
 
@@ -127,7 +125,7 @@ EQUALIZE
 
 Observatie: Operatia se va face pe toata poza, indiferent de selectia curenta.
 
-## ROTATE
+## Rotate
 
 ### Sintaxa:
 
@@ -167,7 +165,7 @@ ROTATE <unghi>
     
 ```
 
-## CROP
+## Crop
 
 ### Sintaxa:
 
@@ -183,7 +181,7 @@ CROP
 3. Inlocuim poza initiala cu noua poza.
 ```
 
-## APPLY
+## Apply
 
 ### Sintaxa:
 
@@ -199,7 +197,7 @@ APPLY <PARAMETRU>
 3. Aplicam filtrul pe fiecare pixel din poza, inafara de margini.
 ```
 
-## SAVE
+## Save
 
 ### Sintaxa:
 
@@ -223,7 +221,7 @@ SAVE <fisier> [ascii]
 4. Inchidem fisierul de iesire.
 ```
 
-## EXIT
+## Exit
 
 ### Sintaxa:
 

@@ -1,6 +1,5 @@
-// Tema3 - Image Editor
+// Image Editor
 // Coman Andrei-Madalin
-// 315 CA
 // 2023-2024
 
 #include "read_utils.h"
